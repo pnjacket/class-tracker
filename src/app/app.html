@@ -1,0 +1,57 @@
+<!-- Class Management Panel -->
+<div class="class-panel">
+  <select [(ngModel)]="activeClassId" (change)="onClassChange()">
+    <option *ngFor="let c of classes" [value]="c.classId">{{c.title}}</option>
+  </select>
+
+  <button (click)="openCreateClassDialog()">+ New Class</button>
+  <button (click)="renameActiveClass()" [disabled]="!activeClass">Rename</button>
+  <button (click)="deleteActiveClass()" [disabled]="!activeClass">Delete</button>
+  <button (click)="editCriteria()" [disabled]="!activeClass">Edit Criteria</button>
+</div>
+
+<!-- Grid Configuration -->
+<div class="config-panel" *ngIf="activeClass">
+  <label>Rows:
+    <input type="number" [(ngModel)]="activeClass.rows" min="1" />
+  </label>
+  <label>Cols:
+    <input type="number" [(ngModel)]="activeClass.cols" min="1" />
+  </label>
+  <button (click)="rebuildGrid()">Apply Size</button>
+</div>
+
+<!-- Classroom Grid -->
+<div class="grid" *ngIf="activeClass"
+     [style.gridTemplateRows]="'repeat(' + activeClass.rows + ', 1fr)'"
+     [style.gridTemplateColumns]="'repeat(' + activeClass.cols + ', 1fr)'">
+  <ng-container *ngFor="let row of activeClass.grid; let rIdx = index">
+    <ng-container *ngFor="let cell of row; let cIdx = index">
+      <div class="cell"
+           (click)="onCellClick(cell)"
+           [class.filled]="!!cell.student">
+
+        <!-- Filled seat -->
+        <ng-container *ngIf="cell.student">
+          <span class="name">{{cell.student.name}}</span>
+          <button class="del-btn" (click)="$event.stopPropagation(); deleteStudent(cell)">✕</button>
+
+          <div class="counter-area"
+               (click)="$event.stopPropagation(); openCountersDialog(cell, $event)">
+            <ng-container *ngFor="let key of getStudentCounterKeys(cell.student); let i = index">
+              {{key}}:{{cell.student.counters[key]}}{{i < (getStudentCounterKeys(cell.student).length - 1) ? ' ' : ''}}
+            </ng-container>
+          </div>
+        </ng-container>
+
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
+
+<!-- Counter Dialog -->
+<app-counter-dialog *ngIf="showDialog"
+                    [student]="activeStudent?.student!"
+                    [position]="dialogPosition"
+                    (close)="closeCounterDialog()">
+</app-counter-dialog>

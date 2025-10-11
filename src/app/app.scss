@@ -1,0 +1,58 @@
+/* Styles for Classroom App */
+
+/* Layout containers */
+.class-panel,
+.config-panel {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button { cursor: pointer; }
+
+/* Grid styling */
+.grid {
+  display: grid;
+  gap: 2px;
+  background-color: #f5f5f5;
+  /* Ensure the grid takes available width and auto height based on rows */
+  width: 100%;
+  max-width: 800px; /* optional limit */
+  margin: 0 auto;
+}
+
+.cell {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  position: relative;
+  min-height: 60px;      /* give each cell a visible height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cell.filled {
+  background-color: #e0f7fa;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.del-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.counter-area {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
