@@ -1,0 +1,19 @@
+<div class="class-panel">
+  <select [ngModel]="activeClassId" (ngModelChange)="store.setActiveClassById($event)">
+    <option *ngFor="let c of classes" [value]="c.classId">{{c.title}}</option>
+  </select>
+
+  <button (click)="openCreateClassDialog()">+ New Class</button>
+  <button (click)="renameActiveClass()" [disabled]="!activeClass">Rename</button>
+  <button (click)="deleteActiveClass()" [disabled]="!activeClass">Delete</button>
+  <button (click)="openCriteriaEditor()" [disabled]="!activeClass">Edit Criteria</button>
+  <button (click)="exportClass()" [disabled]="!activeClass">Export Class</button>
+  <button (click)="exportCsv()" [disabled]="!activeClass">Export CSV</button>
+  <input type="file" #fileInput style="display:none" (change)="importClasses($event)" />
+  <criteria-editor *ngIf="showCriteriaEditor"
+    [criteria]="activeClass.criteria || []"
+    (save)="onCriteriaSaved($event)"
+    (cancel)="onCriteriaCancel()">
+  </criteria-editor>
+  <button (click)="triggerImport()">Import Classes</button>
+</div>

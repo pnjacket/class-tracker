@@ -1,0 +1,8 @@
+<div *ngIf="activeClass" class="view-panel">
+  <label>Date:&nbsp;</label>
+  <select [ngModel]="activeView?.date" (ngModelChange)="onViewChange($event)">
+    <option *ngFor="let v of activeClass.views" [value]="v.date">{{v.date}}</option>
+  </select>
+  <button (click)="addView()">Add Date</button>
+  <button (click)="removeView(activeView?.date)" [disabled]="!activeView">Remove Date</button>
+</div>

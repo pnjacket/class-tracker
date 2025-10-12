@@ -1,0 +1,49 @@
+<div class="grid" *ngIf="activeView"
+     [style.gridTemplateRows]="'repeat(' + activeClass.rows + ', minmax(80px, auto))'"
+     [style.gridTemplateColumns]="'repeat(' + activeClass.cols + ', 1fr)'">
+  <ng-container *ngFor="let row of activeView.grid; let rIdx = index">
+    <ng-container *ngFor="let cell of row; let cIdx = index">
+      <div class="cell" #cellDiv
+           [class.filled]="!!cell.student"
+           (click)="onCellClick(cell)"
+           (dragover)="$event.preventDefault()"
+           (drop)="onDrop(cell)">
+
+        <ng-container *ngIf="cell.student">
+          <div class="student-header">
+          <span class="name" draggable="true" (dragstart)="onDragStart($event, cell)" >{{cell.student.name}}</span>
+          <button class="del-btn" (click)="$event.stopPropagation(); deleteStudent(cell)">✕</button>
+        </div>
+
+          <div class="counter-area">
+            <div *ngFor="let key of getStudentCounterKeys(cell.student); let i = index"
+                 class="criterion-line"
+                 [ngClass]="{'odd': i % 2 === 0, 'even': i % 2 !== 0}">
+              <div class="crit-name">{{key}}</div>
+
+              <!-- Counter type -->
+              <ng-container *ngIf="(getCriterion(key)?.type) === 'counter'">
+                <div class="counter-controls">
+                  <button (click)="$event.stopPropagation(); decrementKey(cell, key)">-</button>
+                  <span class="count-value">{{cell.student.counters[key]}}</span>
+                  <button (click)="$event.stopPropagation(); incrementKey(cell, key)">+</button>
+                </div>
+              </ng-container>
+
+              <!-- Predefined type -->
+              <ng-container *ngIf="(getCriterion(key)?.type) === 'predefined'">
+                <div class="predef-controls">
+                  <button *ngFor="let opt of getCriterion(key)?.options"
+                          title="{{opt}}"
+                          (click)="$event.stopPropagation(); setPredefined(cell, key, opt)">{{opt.charAt(0)}}</button>
+                  <span class="selected-value">{{ cell.student.counters[key] ? (cell.student.counters[key]) : 'N/A' }}</span>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
