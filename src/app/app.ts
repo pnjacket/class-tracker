@@ -212,6 +212,43 @@ export class App implements OnInit {
     this.storage.saveAll(this.classes);
   }
 
+  /** Export the selected class as CSV (one row per student per view) */
+  exportCsv(): void {
+    if (!this.activeClass) return;
+    const criteria = this.activeClass.criteria || [];
+    // header: Student Name, each criterion, Date
+    const headers = ['Student Name', ...criteria, 'Date'];
+    const rows: string[] = [headers.join(',')];
+    for (const view of this.activeClass.views) {
+      const date = view.date;
+      for (const row of view.grid) {
+        for (const cell of row) {
+          if (cell.student) {
+            const values: string[] = [];
+            // name
+            values.push(`"${cell.student.name.replace(/"/g, '""')}"`);
+            // criteria counters in order
+            for (const crit of criteria) {
+              const val = cell.student.counters[crit] ?? '';
+              values.push(`${val}`);
+            }
+            // date
+            values.push(date);
+            rows.push(values.join(','));
+          }
+        }
+      }
+    }
+    const csvContent = rows.join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const filename = `${this.activeClass.title || 'class'}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
   /** ---------- USER INTERACTIONS ---------- */
   onCellClick(cell: Cell): void {
     if (!this.activeView) return;

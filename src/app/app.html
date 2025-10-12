@@ -8,6 +8,7 @@
   <button (click)="deleteActiveClass()" [disabled]="!activeClass">Delete</button>
   <button (click)="editCriteria()" [disabled]="!activeClass">Edit Criteria</button>
   <button (click)="exportClass()" [disabled]="!activeClass">Export Class</button>
+  <button (click)="exportCsv()" [disabled]="!activeClass">Export CSV</button>
   <input type="file" #fileInput style="display:none" (change)="importClasses($event)" />
   <button (click)="triggerImport()">Import Classes</button>
 </div>
