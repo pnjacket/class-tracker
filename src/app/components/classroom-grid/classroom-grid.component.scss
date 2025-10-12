@@ -71,12 +71,19 @@
   align-items: center;
 }
 
-.counter-controls button,
+.counter-controls button {
+  padding: 0.2rem .5rem;
+}
 .predef-controls button {
   padding: 0.2rem .5rem;
+  background: #e0e0e0;
 }
 
 .count-value { min-width: 24px; text-align: center; }
 
 .counter-area .odd {background:#f9f9f9;}
 .counter-area .even {background:#e9e9e9;}
+.predef-controls button.selected {
+  background: #c0c0c0; /* darker shade for selected */
+  color: #fff;
+}

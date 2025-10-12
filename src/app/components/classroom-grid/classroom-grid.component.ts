@@ -43,7 +43,13 @@ export class ClassroomGridComponent implements AfterViewInit {
     }
   }
 
-  deleteStudent(cell: any): void { this.store.deleteStudent(cell); }
+  confirmDeleteStudent(cell: any): void {
+    if (!cell.student) return;
+    const name = cell.student.name || 'this student';
+    if (confirm(`Delete ${name}?`)) {
+      this.store.deleteStudent(cell);
+    }
+  }
 
   incrementKey(cell: any, key: string): void { this.store.incrementKey(cell, key); }
   decrementKey(cell: any, key: string): void { this.store.decrementKey(cell, key); }
