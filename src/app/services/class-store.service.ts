@@ -85,7 +85,7 @@ export class ClassStoreService {
       this.activeView = existing;
       return;
     }
-    const sourceGrid = this.activeView ? this.cloneGrid(this.activeView.grid) : this.buildEmptyGrid(this.activeClass.rows, this.activeClass.cols);
+    const sourceGrid = this.activeView ? this.cloneGrid(this.activeView.grid, false) : this.buildEmptyGrid(this.activeClass.rows, this.activeClass.cols);
     const newView: ClassView = { date, grid: sourceGrid };
     this.activeClass.views.push(newView);
     this.persist();
@@ -139,7 +139,7 @@ export class ClassStoreService {
     return grid;
   }
 
-  private cloneGrid(src: Cell[][]): Cell[][] {
+  private cloneGrid(src: Cell[][], copyCounters = true): Cell[][] {
     const rows = src.length;
     const cols = src[0]?.length || 0;
     const newGrid = this.buildEmptyGrid(rows, cols);
@@ -147,7 +147,23 @@ export class ClassStoreService {
       for (let c = 0; c < cols; c++) {
         const cell = src[r][c];
         if (cell.student) {
+          if (copyCounters) {
           newGrid[r][c].student = { ...cell.student, counters: { ...cell.student.counters } };
+        } else {
+          // Preserve student info but reset each counter based on its type
+          const criteria = this.activeClass?.criteria ?? [];
+          const resetCounters: { [key: string]: any } = {};
+          for (const key of Object.keys(cell.student.counters)) {
+            const crit = criteria.find(c => c.name === key);
+            if (crit && crit.type === 'counter') {
+              resetCounters[key] = 0; // counters default to 0
+            } else {
+              resetCounters[key] = '';
+            }
+          }
+          const { counters, ...rest } = cell.student;
+          newGrid[r][c].student = { ...rest, counters: resetCounters };
+        }
         }
       }
     }
