@@ -1,4 +1,3 @@
-<!-- Class Management Panel -->
 <div class="class-panel">
   <select [(ngModel)]="activeClassId" (change)="onClassChange()">
     <option *ngFor="let c of classes" [value]="c.classId">{{c.title}}</option>
@@ -8,39 +7,58 @@
   <button (click)="renameActiveClass()" [disabled]="!activeClass">Rename</button>
   <button (click)="deleteActiveClass()" [disabled]="!activeClass">Delete</button>
   <button (click)="editCriteria()" [disabled]="!activeClass">Edit Criteria</button>
+  <button (click)="exportClass()" [disabled]="!activeClass">Export Class</button>
+  <input type="file" #fileInput style="display:none" (change)="importClasses($event)" />
+  <button (click)="triggerImport()">Import Classes</button>
+</div>
+
+<div *ngIf="activeClass" class="view-panel">
+  <label>Date:&nbsp;</label>
+  <select [ngModel]="activeView?.date" (ngModelChange)="onViewChange($event)">
+    <option *ngFor="let v of activeClass.views" [value]="v.date">{{v.date}}</option>
+  </select>
+  <button (click)="addView()">Add Date</button>
+  <button (click)="removeView(activeView?.date)" [disabled]="!activeView">Remove Date</button>
 </div>
 
 <!-- Grid Configuration -->
 <div class="config-panel" *ngIf="activeClass">
   <label>Rows:
-    <input type="number" [(ngModel)]="activeClass.rows" min="1" />
+    <input type="number" [(ngModel)]="activeClass.rows" min="1" (change)="rebuildAllViews()" />
   </label>
+  
   <label>Cols:
-    <input type="number" [(ngModel)]="activeClass.cols" min="1" />
+    <input type="number" [(ngModel)]="activeClass.cols" min="1" (change)="rebuildAllViews()" />
   </label>
-  <button (click)="rebuildGrid()">Apply Size</button>
 </div>
 
 <!-- Classroom Grid -->
-<div class="grid" *ngIf="activeClass"
+<div class="grid" *ngIf="activeView"
      [style.gridTemplateRows]="'repeat(' + activeClass.rows + ', 1fr)'"
      [style.gridTemplateColumns]="'repeat(' + activeClass.cols + ', 1fr)'">
-  <ng-container *ngFor="let row of activeClass.grid; let rIdx = index">
+  <ng-container *ngFor="let row of activeView.grid; let rIdx = index">
     <ng-container *ngFor="let cell of row; let cIdx = index">
       <div class="cell"
+           [class.filled]="!!cell.student"
            (click)="onCellClick(cell)"
-           [class.filled]="!!cell.student">
+           (dragover)="$event.preventDefault()"
+           (drop)="onDrop(cell)">
 
-        <!-- Filled seat -->
         <ng-container *ngIf="cell.student">
-          <span class="name">{{cell.student.name}}</span>
+          <span class="name" draggable="true" (dragstart)="onDragStart($event, cell)" >{{cell.student.name}}</span>
           <button class="del-btn" (click)="$event.stopPropagation(); deleteStudent(cell)">✕</button>
 
-          <div class="counter-area"
-               (click)="$event.stopPropagation(); openCountersDialog(cell, $event)">
-            <ng-container *ngFor="let key of getStudentCounterKeys(cell.student); let i = index">
-              {{key}}:{{cell.student.counters[key]}}{{i < (getStudentCounterKeys(cell.student).length - 1) ? ' ' : ''}}
-            </ng-container>
+          <div class="counter-area">
+            <div *ngFor="let key of getStudentCounterKeys(cell.student); let i = index"
+                     class="criterion-line"
+                     [ngClass]="{'odd': i % 2 === 0, 'even': i % 2 !== 0}">
+                <div class="crit-name">{{key}}</div>
+                <div class="counter-controls">
+                  <button (click)="$event.stopPropagation(); decrementKey(cell, key)">-</button>
+                  <span class="count-value">{{cell.student.counters[key]}}</span>
+                  <button (click)="$event.stopPropagation(); incrementKey(cell, key)">+</button>
+                </div>
+              </div>
           </div>
         </ng-container>
 
@@ -48,10 +66,3 @@
     </ng-container>
   </ng-container>
 </div>
-
-<!-- Counter Dialog -->
-<app-counter-dialog *ngIf="showDialog"
-                    [student]="activeStudent?.student!"
-                    [position]="dialogPosition"
-                    (close)="closeCounterDialog()">
-</app-counter-dialog>
