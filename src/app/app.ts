@@ -2,13 +2,14 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StorageService } from './services/storage.service';
-import { ClassRoom, Cell, Student, ClassView } from './models';
+import { ClassRoom, Cell, Student, ClassView, Criterion, migrateCriteria } from './models';
+import { CriteriaEditorComponent } from './criteria-editor/criteria-editor.component';
 import { uuid } from './utils';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CriteriaEditorComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
@@ -18,6 +19,8 @@ export class App implements OnInit {
   activeClassId: string | null = null;
   activeClass!: ClassRoom; // currently selected class reference
   activeView?: ClassView; // view for selected date
+
+  showCriteriaEditor = false;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -35,6 +38,10 @@ export class App implements OnInit {
     this.classes.forEach(c => {
       if (!c.views) c.views = [];
       if (!c.criteria) c.criteria = [];
+      // Migrate legacy string[] criteria to new model
+      if (Array.isArray((c as any).criteria) && typeof (c as any).criteria[0] === 'string') {
+        c.criteria = migrateCriteria((c as any).criteria);
+      }
     });
     if (this.classes.length === 0) {
       const defaultClass = this.createClass('Default Class', 5, 5);
@@ -108,6 +115,60 @@ export class App implements OnInit {
       const def = this.createClass('Default Class', 5, 5);
       this.addViewForClass(def, new Date().toISOString().slice(0,10));
     }
+  }
+
+  /** Open the criteria editor modal */
+  openCriteriaEditor(): void {
+    this.showCriteriaEditor = true;
+  }
+
+  /** Handle saved criteria from modal */
+  onCriteriaSaved(updated: Criterion[]): void {
+    const prev = this.activeClass.criteria || [];
+    // Reset values if type changed
+    updated.forEach(newC => {
+      const oldC = prev.find(o => o.name === newC.name);
+      if (oldC && oldC.type !== newC.type) {
+        // Update all students' counters for this criterion
+        this.activeClass.views.forEach(view => {
+          view.grid.forEach(row => row.forEach(cell => {
+            if (!cell.student) return;
+            const stu = cell.student;
+            if (newC.type === 'counter') {
+              stu.counters[newC.name] = 0;
+            } else {
+              stu.counters[newC.name] = newC.options && newC.options.length ? newC.options[0] : '';
+            }
+          }));
+        });
+      }
+    });
+
+    // Ensure all students have counters for all criteria and remove extras
+    const names = updated.map(c => c.name);
+    this.activeClass.views.forEach(view => {
+      view.grid.forEach(row => row.forEach(cell => {
+        if (!cell.student) return;
+        const counters = cell.student.counters;
+        // Add missing criteria
+        updated.forEach(c => {
+          if (!(c.name in counters)) {
+            counters[c.name] = c.type === 'counter' ? 0 : (c.options && c.options.length ? c.options[0] : '');
+          }
+        });
+        // Remove old criteria not present
+        Object.keys(counters).forEach(k => { if (!names.includes(k)) delete counters[k]; });
+      }));
+    });
+
+    this.activeClass.criteria = updated;
+    this.storage.saveAll(this.classes);
+    this.showCriteriaEditor = false;
+  }
+
+  /** Cancel criteria editing */
+  onCriteriaCancel(): void {
+    this.showCriteriaEditor = false;
   }
 
   /** ---------- VIEW HELPERS ---------- */
@@ -191,33 +252,17 @@ export class App implements OnInit {
     return newGrid;
   }
 
-  /** ---------- CRITERIA HELPERS ---------- */
-  editCriteria(): void {
-    const current = (this.activeClass.criteria || []).join(', ');
-    const input = window.prompt('Enter criteria names (comma‑separated):', current);
-    if (input === null) return;
-    const list = input.split(',').map(s => s.trim()).filter(Boolean);
-    this.activeClass.criteria = list;
-    // ensure every student in all views has matching counters
-    for (const view of this.activeClass.views) {
-      for (const row of view.grid) {
-        for (const cell of row) {
-          if (cell.student) {
-            for (const crit of list) { if (!(crit in cell.student.counters)) cell.student.counters[crit] = 0; }
-            for (const key of Object.keys(cell.student.counters)) { if (!list.includes(key)) delete cell.student.counters[key]; }
-          }
-        }
-      }
-    }
-    this.storage.saveAll(this.classes);
+  /** Get criterion definition by name */
+  getCriterion(name: string): Criterion | undefined {
+    return this.activeClass?.criteria?.find(c => c.name === name);
   }
 
   /** Export the selected class as CSV (one row per student per view) */
   exportCsv(): void {
     if (!this.activeClass) return;
     const criteria = this.activeClass.criteria || [];
-    // header: Student Name, each criterion, Date
-    const headers = ['Student Name', ...criteria, 'Date'];
+    // header: Student Name, each criterion name, Date
+    const headers = ['Student Name', ...criteria.map(c => c.name), 'Date'];
     const rows: string[] = [headers.join(',')];
     for (const view of this.activeClass.views) {
       const date = view.date;
@@ -229,7 +274,7 @@ export class App implements OnInit {
             values.push(`"${cell.student.name.replace(/"/g, '""')}"`);
             // criteria counters in order
             for (const crit of criteria) {
-              const val = cell.student.counters[crit] ?? '';
+              const val = cell.student.counters[crit.name] ?? '';
               values.push(`${val}`);
             }
             // date
@@ -255,8 +300,15 @@ export class App implements OnInit {
     if (cell.student) return; // occupied
     const name = window.prompt('Student name:');
     if (!name) return;
-    const counters: { [key: string]: number } = {};
-    this.activeClass.criteria?.forEach(k => (counters[k] = 0));
+    const counters: { [key: string]: any } = {};
+    this.activeClass.criteria?.forEach(crit => {
+      if (crit.type === 'counter') {
+        counters[crit.name] = 0;
+      } else {
+        // predefined - default to first option or empty string
+        counters[crit.name] = crit.options && crit.options.length ? crit.options[0] : '';
+      }
+    });
     cell.student = { id: uuid(), name, counters };
     // trigger change detection
     this.activeView.grid = [...this.activeView.grid];
@@ -270,9 +322,25 @@ export class App implements OnInit {
     if (this.activeView) this.activeView.grid = [...this.activeView.grid];
   }
 
-  incrementKey(cell: Cell, key: string): void { if (!cell.student) return; cell.student.counters[key] = (cell.student.counters[key] || 0) + 1; this.storage.saveAll(this.classes); if (this.activeView) this.activeView.grid=[...this.activeView.grid]; }
+  incrementKey(cell: Cell, key: string): void {
+    if (!cell.student) return;
+    const current = cell.student.counters[key];
+    if (typeof current === 'number') {
+      cell.student.counters[key] = current + 1;
+    }
+    this.storage.saveAll(this.classes);
+    if (this.activeView) this.activeView.grid = [...this.activeView.grid];
+  }
 
-  decrementKey(cell: Cell, key: string): void { if (!cell.student) return; const cur = cell.student.counters[key]||0; if (cur>0){ cell.student.counters[key]=cur-1; this.storage.saveAll(this.classes); if (this.activeView) this.activeView.grid=[...this.activeView.grid]; } }
+  decrementKey(cell: Cell, key: string): void {
+    if (!cell.student) return;
+    const current = cell.student.counters[key];
+    if (typeof current === 'number' && current > 0) {
+      cell.student.counters[key] = current - 1;
+    }
+    this.storage.saveAll(this.classes);
+    if (this.activeView) this.activeView.grid = [...this.activeView.grid];
+  }
 
   /** ---------- DRAG & DROP ---------- */
   onDragStart(event: DragEvent, cell: Cell): void {
@@ -289,6 +357,14 @@ export class App implements OnInit {
     this.storage.saveAll(this.classes);
     if (this.activeView) this.activeView.grid=[...this.activeView.grid];
     this.draggedFromCell = undefined;
+  }
+
+
+  setPredefined(cell: Cell, key: string, value: string): void {
+    if (!cell.student) return;
+    cell.student.counters[key] = value;
+    this.storage.saveAll(this.classes);
+    if (this.activeView) this.activeView.grid = [...this.activeView.grid];
   }
 
   /** ---------- IMPORT / EXPORT ---------- */

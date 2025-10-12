@@ -2,8 +2,10 @@
 export interface Student {
   id: string; // uuid
   name: string;
-  counters: { [key: string]: number }; // e.g. { A:0, B:0, C:0 }
+  // Counter values are numbers for 'counter' criteria and strings for 'predefined' criteria
+  counters: { [key: string]: number | string }; // e.g. { A:0, B:'', C:'Option1' }
 }
+
 
 /** One cell of the grid */
 export interface Cell {
@@ -19,12 +21,30 @@ export interface ClassView {
 }
 
 /** The whole classroom (a "Class") */
+export type CriterionType = 'counter' | 'predefined';
+
+export interface Criterion {
+  name: string;
+  type: CriterionType;
+  /** Only for predefined – comma‑separated allowed values */
+  options?: string[]; // e.g. ['A', 'B', 'C']
+}
+
+/** Convert legacy string array into new Criterion objects */
+export function migrateCriteria(old: any): Criterion[] {
+  if (!old) return [];
+  // Already in new shape?
+  if (Array.isArray(old) && old.length && typeof old[0] === 'object') return old as Criterion[];
+  // Legacy string[] → array of counters
+  return (old as string[]).map(name => ({ name, type: 'counter' as const }));
+}
+
 export interface ClassRoom {
   classId: string; // uuid – unique per class
   title: string;   // e.g. “Math‑101”
   rows: number;
   cols: number;
-  criteria: string[]; // list of criterion names for this class
+  criteria: Criterion[]; // list of criterion objects for this class
   // grid: Cell[][]; // deprecated – use views instead
   // kept optional for backward compatibility
   grid?: Cell[][];

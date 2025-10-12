@@ -1,0 +1,41 @@
+<div class="modal-overlay"></div>
+<div class="criteria-editor-modal" role="dialog" aria-modal="true">
+  <h2>Manage Criteria</h2>
+
+  <!-- List existing criteria -->
+  <ul class="list">
+    <li *ngFor="let c of criteria; let i = index">
+      <span>{{c.name}} ({{c.type}})</span>
+      <button type="button" (click)="edit(i)">Edit</button>
+      <button type="button" (click)="delete(i)">Delete</button>
+    </li>
+  </ul>
+
+  <!-- Add / Edit form -->
+  <div class="form">
+    <label>Name:
+      <input [(ngModel)]="name" />
+    </label>
+    <label>Type:
+      <select [(ngModel)]="type">
+        <option value="counter">Counter</option>
+        <option value="predefined">Predefined</option>
+      </select>
+    </label>
+
+    <!-- Options only for predefined -->
+    <div *ngIf="isPredefined">
+      <label>Options (comma‑separated):
+        <textarea [(ngModel)]="optionsText"></textarea>
+      </label>
+    </div>
+
+    <button type="button" (click)="confirm()">{{ editingIndex === null ? 'Add' : 'Update' }}</button>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="actions">
+    <button type="button" (click)="saveAll()">Save All &amp; Close</button>
+    <button type="button" (click)="close()">Cancel</button>
+  </div>
+</div>

@@ -48,11 +48,17 @@ export class CounterDialogComponent {
   }
 
   increment(key: string): void {
-    this.student.counters[key]++;
+    const current = this.student.counters[key];
+    if (typeof current === 'number') {
+      this.student.counters[key] = current + 1;
+    }
     this.close.emit();
   }
   decrement(key: string): void {
-    if (this.student.counters[key] > 0) this.student.counters[key]--;
+    const current = this.student.counters[key];
+    if (typeof current === 'number' && current > 0) {
+      this.student.counters[key] = current - 1;
+    }
     this.close.emit();
   }
 }
