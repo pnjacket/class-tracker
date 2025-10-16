@@ -6,7 +6,8 @@
     "start": "ng serve --host=0.0.0.0",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test --browsers=ChromeHeadless --no-watch --no-progress"
+    "test": "ng test --browsers=ChromeHeadless --no-watch --no-progress",
+    "deploy": "ng build --configuration production && rm -rf ./docs && mv ./dist/classroom-app/browser ./docs"
   },
   "prettier": {
     "printWidth": 100,
