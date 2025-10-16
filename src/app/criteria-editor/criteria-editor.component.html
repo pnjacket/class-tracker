@@ -2,14 +2,28 @@
 <div class="criteria-editor-modal" role="dialog" aria-modal="true">
   <h2>Manage Criteria</h2>
 
-  <!-- List existing criteria -->
-  <ul class="list">
-    <li *ngFor="let c of criteria; let i = index">
-      <span>{{c.name}} ({{c.type}})</span>
-      <button type="button" (click)="edit(i)">Edit</button>
-      <button type="button" (click)="delete(i)">Delete</button>
-    </li>
-  </ul>
+  <!-- List existing criteria as a table -->
+  <div class="criteria-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of criteria; let i = index">
+          <td>{{c.name}}</td>
+          <td>{{c.type}}</td>
+          <td>
+            <button type="button" (click)="edit(i)">Edit</button>
+            <button type="button" (click)="delete(i)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <!-- Add / Edit form -->
   <div class="form">

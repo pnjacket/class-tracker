@@ -272,7 +272,7 @@ export class ClassStoreService {
             if (!cell.student) return;
             const stu = cell.student;
             if (newC.type === 'counter') stu.counters[newC.name] = 0;
-            else stu.counters[newC.name] = newC.options && newC.options.length ? newC.options[0] : '';
+            else stu.counters[newC.name] = '';
           }));
         });
       }

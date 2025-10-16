@@ -18,6 +18,30 @@
   border-radius: 6px;
 }
 .list { margin-bottom: 1rem; }
+
+.criteria-table {
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+.criteria-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.criteria-table th,
+.criteria-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: left;
+}
+.criteria-table th {
+  background-color: #f4f4f4;
+}
+.form {
+  background:#fafafa;
+  padding:1rem;
+  border:1px solid #e0e0e0;
+  border-radius:4px;
+}
 .form label { display:block; margin:.5rem 0; }
 .actions { margin-top:1rem; text-align:right; }
 button { margin-left:.3rem; }

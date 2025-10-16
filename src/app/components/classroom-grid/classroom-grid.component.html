@@ -39,7 +39,7 @@
 
               <!-- Predefined type -->
               <ng-container *ngIf="(getCriterion(key)?.type) === 'predefined'">
-                <div class="predef-controls">
+                <div class="predef-controls" [ngClass]="{'zero-bg': cell.student.counters[key] === '' || cell.student.counters[key] == null}">
                   <button *ngFor="let opt of getCriterion(key)?.options"
                           title="{{opt}}"
                           (click)="$event.stopPropagation(); setPredefined(cell, key, opt)"

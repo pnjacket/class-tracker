@@ -1,7 +1,8 @@
-<label>Rows:
-  <input type="number" [(ngModel)]="activeClass.rows" min="1" (change)="rebuildAllViews()" />
-</label>
-
-<label>Cols:
-  <input type="number" [(ngModel)]="activeClass.cols" min="1" (change)="rebuildAllViews()" />
-</label>
+<div *ngIf="activeClass" class="config-panel">
+  <label>Rows:
+    <input type="number" [(ngModel)]="activeClass.rows" min="1" (change)="rebuildAllViews()" />
+  </label>
+  <label>Cols:
+    <input type="number" [(ngModel)]="activeClass.cols" min="1" (change)="rebuildAllViews()" />
+  </label>
+</div>
