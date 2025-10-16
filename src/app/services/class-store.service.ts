@@ -324,6 +324,8 @@ export class ClassStoreService {
           vals.push(`"${cell.student.name.replace(/"/g, '""')}"`);
           for (const crit of criteria) { vals.push(`${cell.student.counters[crit.name] ?? ''}`); }
           vals.push(date);
+          const notes: string = cell.student.notes ?? "";
+          vals.push(notes);
           rows.push(vals.join(','));
         }
       }
