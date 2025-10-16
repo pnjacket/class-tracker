@@ -3,10 +3,10 @@
     <option *ngFor="let c of classes" [value]="c.classId">{{c.title}}</option>
   </select>
 
-  <button (click)="openCreateClassDialog()">+ New Class</button>
-  <button (click)="renameActiveClass()" [disabled]="!activeClass">Rename</button>
-  <button (click)="deleteActiveClass()" [disabled]="!activeClass">Delete</button>
-  <button (click)="openCriteriaEditor()" [disabled]="!activeClass">Edit Criteria</button>
+  <button (click)="openCreateClassDialog()" [disabled]="!activeClass || !editMode.isEnabled">New Class</button>
+  <button (click)="renameActiveClass()" [disabled]="!activeClass || !editMode.isEnabled">Rename</button>
+  <button (click)="deleteActiveClass()" [disabled]="!activeClass || !editMode.isEnabled">Delete</button>
+  <button (click)="openCriteriaEditor()" [disabled]="!activeClass || !editMode.isEnabled">Edit Criteria</button>
   <button (click)="exportClass()" [disabled]="!activeClass">Export Class</button>
   <button (click)="exportCsv()" [disabled]="!activeClass">Export CSV</button>
   <input type="file" #fileInput style="display:none" (change)="importClasses($event)" />
@@ -15,10 +15,6 @@
     (save)="onCriteriaSaved($event)"
     (cancel)="onCriteriaCancel()">
   </criteria-editor>
-  <button (click)="triggerImport()">Import Classes</button>
-  <button class="toggle-drag-btn"
-        (click)="editMode.toggle()"
-        [ngClass]="{'enabled-btn': editMode.isEnabled, 'disabled-btn': !editMode.isEnabled}">
-        {{ editMode.isEnabled ? 'Disable Edit Mode' : 'Enable Edit Mode' }}
-      </button>
+  <button (click)="triggerImport()" [disabled]="!editMode.isEnabled">Import Classes</button>
+  <!-- Edit mode toggle moved to top‑right corner in app.html -->
 </div>

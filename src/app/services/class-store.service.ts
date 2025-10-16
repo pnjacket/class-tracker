@@ -85,7 +85,20 @@ export class ClassStoreService {
       this.activeView = existing;
       return;
     }
+
+    // Build the grid for the new view – copy existing layout but we will clear notes
     const sourceGrid = this.activeView ? this.cloneGrid(this.activeView.grid, false) : this.buildEmptyGrid(this.activeClass.rows, this.activeClass.cols);
+
+    // Clear any existing notes in the newly created grid (so a fresh view starts with empty notes)
+    for (let r = 0; r < sourceGrid.length; r++) {
+      for (let c = 0; c < sourceGrid[r].length; c++) {
+        const cell = sourceGrid[r][c];
+        if (cell.student && cell.student.notes) {
+          cell.student.notes = '';
+        }
+      }
+    }
+
     const newView: ClassView = { date, grid: sourceGrid };
     this.activeClass.views.push(newView);
     this.persist();

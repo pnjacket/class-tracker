@@ -5,5 +5,7 @@
   align-items: center;
   gap: 0.5rem;
 }
-.enabled-btn { background-color: #28a745; color: white; }
-.disabled-btn { background-color: #dc3545; color: white; }
+
+button {
+  min-width: 150px;
+}

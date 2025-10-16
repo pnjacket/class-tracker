@@ -2,3 +2,9 @@
 <app-date-config></app-date-config>
 <app-grid-config *ngIf="editMode.isEnabled"></app-grid-config>
 <app-classroom-grid></app-classroom-grid>
+<!-- Edit‑mode toggle button – positioned top‑right -->
+<button class="edit-mode-toggle"
+        (click)="editMode.toggle()"
+        [ngClass]="{'enabled-btn': editMode.isEnabled, 'disabled-btn': !editMode.isEnabled}">
+  {{ editMode.isEnabled ? 'Disable Edit Mode' : 'Enable Edit Mode' }}
+</button>

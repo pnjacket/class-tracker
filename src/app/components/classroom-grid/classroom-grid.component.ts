@@ -75,6 +75,12 @@ export class ClassroomGridComponent implements AfterViewInit {
     return student ? Object.keys(student.counters) : [];
   }
 
+  /** Returns true if the given student has non‑empty notes */
+  hasNotes(student: any): boolean {
+    // Treat undefined, null, empty string as no notes
+    return !!student && typeof student.notes === 'string' && student.notes.trim().length > 0;
+  }
+
   /** ---------- Notes handling (double‑click) ---------- */
   editingNotesCell?: any; // The cell currently being edited
   notesEditValue: string = '';

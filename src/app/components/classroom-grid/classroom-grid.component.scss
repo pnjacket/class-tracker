@@ -68,6 +68,16 @@
   text-overflow: ellipsis;
 }
 
+/* Small rectangle indicator that a student has notes */
+.notes-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+  background-color: #ff9800; /* orange */
+  border-radius: 2px;
+}
+
 .counter-area {
   width: 100%;
 }
@@ -86,6 +96,11 @@
   gap: 2px;
   justify-content: center;
   align-items: center;
+}
+
+/* Red‑tint background for counters that are zero */
+.counter-controls.zero-bg {
+  background-color: #ffdddd; /* light red */
 }
 
 .counter-controls button {

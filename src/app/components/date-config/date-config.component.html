@@ -1,5 +1,4 @@
 <div *ngIf="activeClass" class="view-panel">
-  <label>Date:&nbsp;</label>
   <!-- Disabled when edit mode (drag‑and‑drop) is off -->
   <select [ngModel]="activeView?.date"
           (ngModelChange)="onViewChange($event)">

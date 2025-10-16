@@ -16,6 +16,8 @@
           (dragstart)="editMode.isEnabled && onDragStart($event, cell)"
           (dblclick)="openNotesDialog(cell)"
         >{{cell.student.name}}</span>
+        <!-- Indicator for existing notes -->
+        <span class="notes-indicator" *ngIf="hasNotes(cell.student)"></span>
       <button class="del-btn" *ngIf="editMode.isEnabled" (click)="$event.stopPropagation(); confirmDeleteStudent(cell)">✕</button>
         </div>
 
@@ -27,7 +29,8 @@
 
               <!-- Counter type -->
               <ng-container *ngIf="(getCriterion(key)?.type) === 'counter'">
-                <div class="counter-controls">
+                <!-- Counter controls: red background when value is zero -->
+                <div class="counter-controls" [ngClass]="{'zero-bg': cell.student.counters[key] === 0}">
                   <button (click)="$event.stopPropagation(); decrementKey(cell, key)">-</button>
                   <span class="count-value">{{cell.student.counters[key]}}</span>
                   <button (click)="$event.stopPropagation(); incrementKey(cell, key)">+</button>
