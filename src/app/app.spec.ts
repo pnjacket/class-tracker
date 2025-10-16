@@ -1,23 +1,33 @@
+// src/app/app.spec.ts
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { ClassStoreService } from './services/class-store.service';
+import { EditModeService } from './services/drag-toggle.service';
 
-describe('App', () => {
+class MockClassStore {
+  initialize = jasmine.createSpy('initialize');
+}
+
+class MockEditMode {}
+
+describe('App Component', () => {
+  let fixture: any;
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [
+        { provide: ClassStoreService, useClass: MockClassStore },
+        { provide: EditModeService, useClass: MockEditMode }
+      ]
     }).compileComponents();
+
+    fixture = TestBed.createComponent(App);
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, classroom-app');
+  it('should call store.initialize on ngOnInit', () => {
+    const component = fixture.componentInstance;
+    component.ngOnInit();
+    const store = TestBed.inject(ClassStoreService) as any;
+    expect(store.initialize).toHaveBeenCalled();
   });
 });
