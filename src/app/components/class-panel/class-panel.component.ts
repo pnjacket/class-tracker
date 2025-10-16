@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassStoreService } from '../../services/class-store.service';
 import { CriteriaEditorComponent } from '../../criteria-editor/criteria-editor.component';
+import { EditModeService } from '../../services/drag-toggle.service';
 
 @Component({
   selector: 'app-class-panel',
@@ -16,7 +17,7 @@ export class ClassPanelComponent {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(public store: ClassStoreService) {}
+  constructor(public store: ClassStoreService, public editMode: EditModeService) {}
 
   // ----- Getters -----
   get classes() { return this.store.classes; }

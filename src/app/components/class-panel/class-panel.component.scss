@@ -5,4 +5,5 @@
   align-items: center;
   gap: 0.5rem;
 }
-button { cursor: pointer; }
+.enabled-btn { background-color: #28a745; color: white; }
+.disabled-btn { background-color: #dc3545; color: white; }

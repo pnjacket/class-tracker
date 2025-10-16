@@ -11,8 +11,11 @@
 
         <ng-container *ngIf="cell.student">
           <div class="student-header">
-          <span class="name" draggable="true" (dragstart)="onDragStart($event, cell)" >{{cell.student.name}}</span>
-          <button class="del-btn" (click)="$event.stopPropagation(); confirmDeleteStudent(cell)">✕</button>
+          <span class="name"
+          [attr.draggable]="editMode.isEnabled ? true : null"
+          (dragstart)="editMode.isEnabled && onDragStart($event, cell)"
+        >{{cell.student.name}}</span>
+      <button class="del-btn" *ngIf="editMode.isEnabled" (click)="$event.stopPropagation(); confirmDeleteStudent(cell)">✕</button>
         </div>
 
           <div class="counter-area">

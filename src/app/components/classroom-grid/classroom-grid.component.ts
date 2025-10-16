@@ -1,4 +1,5 @@
 import { Component, AfterViewInit, QueryList, ViewChildren, ElementRef } from '@angular/core';
+import { EditModeService } from '../../services/drag-toggle.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassStoreService } from '../../services/class-store.service';
@@ -11,7 +12,7 @@ import { ClassStoreService } from '../../services/class-store.service';
   styleUrls: ['./classroom-grid.component.scss']
 })
 export class ClassroomGridComponent implements AfterViewInit {
-  constructor(public store: ClassStoreService, private host: ElementRef) {}
+  constructor(public store: ClassStoreService, public editMode: EditModeService, private host: ElementRef) {}
 
   @ViewChildren('cellDiv') cells!: QueryList<ElementRef<HTMLElement>>;
 
@@ -36,11 +37,16 @@ export class ClassroomGridComponent implements AfterViewInit {
 
   getCriterion(name: string) { return this.store.getCriterion(name); }
 
+  /** Add a student to an empty cell only when edit mode is enabled */
   onCellClick(cell: any): void {
-    if (!cell.student) {
-      const name = window.prompt('Student name:');
-      if (name) this.store.addStudent(cell, name);
-    }
+    // If the cell already contains a student, we don't interfere here.
+    if (cell.student) return;
+
+    // Guard: only allow adding students while edit mode is active
+    if (!this.editMode.isEnabled) return;
+
+    const name = window.prompt('Student name:');
+    if (name) this.store.addStudent(cell, name);
   }
 
   confirmDeleteStudent(cell: any): void {

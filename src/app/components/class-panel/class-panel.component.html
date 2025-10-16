@@ -16,4 +16,9 @@
     (cancel)="onCriteriaCancel()">
   </criteria-editor>
   <button (click)="triggerImport()">Import Classes</button>
+  <button class="toggle-drag-btn"
+        (click)="editMode.toggle()"
+        [ngClass]="{'enabled-btn': editMode.isEnabled, 'disabled-btn': !editMode.isEnabled}">
+        {{ editMode.isEnabled ? 'Disable Edit Mode' : 'Enable Edit Mode' }}
+      </button>
 </div>

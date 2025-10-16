@@ -5,6 +5,7 @@ import { ClassPanelComponent } from './components/class-panel/class-panel.compon
 import { DateConfigComponent } from './components/date-config/date-config.component';
 import { GridConfigComponent } from './components/grid-config/grid-config.component';
 import { ClassroomGridComponent } from './components/classroom-grid/classroom-grid.component';
+import { EditModeService } from './services/drag-toggle.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ import { ClassroomGridComponent } from './components/classroom-grid/classroom-gr
   styleUrls: ['./app.scss']
 })
 export class App implements OnInit {
-  constructor(private store: ClassStoreService) {}
+  constructor(private store: ClassStoreService, public editMode: EditModeService) {}
 
   ngOnInit(): void {
     this.store.initialize();

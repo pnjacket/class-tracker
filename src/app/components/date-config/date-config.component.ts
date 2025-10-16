@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassStoreService } from '../../services/class-store.service';
+import { EditModeService } from '../../services/drag-toggle.service';
 
 @Component({
   selector: 'app-date-config',
@@ -11,7 +12,7 @@ import { ClassStoreService } from '../../services/class-store.service';
   styleUrls: ['./date-config.component.scss']
 })
 export class DateConfigComponent {
-  constructor(public store: ClassStoreService) {}
+  constructor(public store: ClassStoreService, public editMode: EditModeService) {}
 
   get activeClass() { return this.store.activeClass; }
   get activeView() { return this.store.activeView; }
