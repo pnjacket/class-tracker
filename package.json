@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --browsers=ChromeHeadless --no-watch --no-progress",
-    "deploy": "ng build --configuration production && rm -rf ./docs && mv ./dist/classroom-app/browser ./docs"
+    "deploy": "ng build --base-href /class-tracker/ --configuration production && rm -rf ./docs && mv ./dist/classroom-app/browser ./docs"
   },
   "prettier": {
     "printWidth": 100,
