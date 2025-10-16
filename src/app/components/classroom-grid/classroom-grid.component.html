@@ -11,9 +11,10 @@
 
         <ng-container *ngIf="cell.student">
           <div class="student-header">
-          <span class="name"
+        <span class="name"
           [attr.draggable]="editMode.isEnabled ? true : null"
           (dragstart)="editMode.isEnabled && onDragStart($event, cell)"
+          (dblclick)="openNotesDialog(cell)"
         >{{cell.student.name}}</span>
       <button class="del-btn" *ngIf="editMode.isEnabled" (click)="$event.stopPropagation(); confirmDeleteStudent(cell)">✕</button>
         </div>
@@ -47,6 +48,18 @@
         </ng-container>
 
       </div>
-    </ng-container>
   </ng-container>
+</ng-container>
+
+<!-- Notes dialog – shown when a student cell is being edited -->
+<div class="notes-modal" *ngIf="editingNotesCell">
+  <div class="modal-content">
+    <h3>Student Notes</h3>
+    <textarea [(ngModel)]="notesEditValue" rows="8" style="width:100%;"></textarea>
+    <div class="modal-actions" style="margin-top:8px; text-align:right;">
+      <button (click)="cancelNotes()">Cancel</button>
+      <button (click)="saveNotes()" style="margin-left:4px;">Save</button>
+    </div>
+  </div>
+</div>
 </div>

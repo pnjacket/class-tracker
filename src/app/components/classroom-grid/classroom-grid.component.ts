@@ -74,4 +74,29 @@ export class ClassroomGridComponent implements AfterViewInit {
   getStudentCounterKeys(student?: any): string[] {
     return student ? Object.keys(student.counters) : [];
   }
+
+  /** ---------- Notes handling (double‑click) ---------- */
+  editingNotesCell?: any; // The cell currently being edited
+  notesEditValue: string = '';
+
+  /** Open the notes dialog for a student cell – only in edit mode */
+  openNotesDialog(cell: any): void {
+    if (!cell.student) return;
+    this.editingNotesCell = cell;
+    this.notesEditValue = cell.student.notes ?? '';
+  }
+
+  /** Close the notes dialog without saving */
+  cancelNotes(): void {
+    this.editingNotesCell = undefined;
+    this.notesEditValue = '';
+  }
+
+  /** Save notes and close the dialog */
+  saveNotes(): void {
+    if (this.editingNotesCell && this.editingNotesCell.student) {
+      this.store.setStudentNotes(this.editingNotesCell, this.notesEditValue);
+    }
+    this.cancelNotes();
+  }
 }

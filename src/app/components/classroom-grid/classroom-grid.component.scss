@@ -9,9 +9,26 @@
 }
 
 .cell {
-  border: 1px solid #ddd;
-  background-color: #fff;
+  border: 1px solid #ccc;
   padding: 4px;
+}
+
+/* Simple modal styling – adjust as needed */
+.notes-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notes-modal .modal-content {
+  background: #fff;
+  padding: 16px;
+  border-radius: 4px;
+  max-width: 400px;
+  width: 90%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

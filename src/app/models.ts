@@ -2,6 +2,8 @@
 export interface Student {
   id: string; // uuid
   name: string;
+  /** Optional free‑form notes for the student, stored per class/date */
+  notes?: string;
   // Counter values are numbers for 'counter' criteria and strings for 'predefined' criteria
   counters: { [key: string]: number | string }; // e.g. { A:0, B:'', C:'Option1' }
 }

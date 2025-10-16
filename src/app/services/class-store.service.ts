@@ -221,6 +221,15 @@ export class ClassStoreService {
     this.persist();
   }
 
+  /** Set free‑form notes for a student in the given cell */
+  setStudentNotes(cell: Cell, notes: string): void {
+    if (!cell.student) return;
+    cell.student.notes = notes;
+    // Trigger change detection on the view grid
+    if (this.activeView) this.activeView.grid = [...this.activeView.grid];
+    this.persist();
+  }
+
   // ----- Drag & Drop -----
   startDrag(cell: Cell): void {
     if (!cell.student) return;
