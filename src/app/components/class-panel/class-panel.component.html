@@ -7,14 +7,19 @@
   <button (click)="renameActiveClass()" [disabled]="!activeClass || !editMode.isEnabled">Rename</button>
   <button (click)="deleteActiveClass()" [disabled]="!activeClass || !editMode.isEnabled">Delete</button>
   <button (click)="openCriteriaEditor()" [disabled]="!activeClass || !editMode.isEnabled">Edit Criteria</button>
-  <button (click)="exportClass()" [disabled]="!activeClass">Export Class</button>
-  <button (click)="exportCsv()" [disabled]="!activeClass">Export CSV</button>
+  <button (click)="toggleDataMenu()" [disabled]="!activeClass">Data</button>
+  <div *ngIf="showDataMenu" class="data-overlay" (click)="closeDataMenu()">
+    <div class="data-menu" (click)="$event.stopPropagation()">
+      <button (click)="exportClass(); closeDataMenu()">Export Class</button>
+      <button (click)="exportCsv(); closeDataMenu()">Export CSV</button>
+      <button (click)="triggerImport(); closeDataMenu()" [disabled]="!editMode.isEnabled">Import Classes</button>
+    </div>
+  </div>
+    <criteria-editor *ngIf="showCriteriaEditor"
+      [criteria]="activeClass.criteria || []"
+      (save)="onCriteriaSaved($event)"
+      (cancel)="onCriteriaCancel()">
+    </criteria-editor>
   <input type="file" #fileInput style="display:none" (change)="importClasses($event)" />
-  <criteria-editor *ngIf="showCriteriaEditor"
-    [criteria]="activeClass.criteria || []"
-    (save)="onCriteriaSaved($event)"
-    (cancel)="onCriteriaCancel()">
-  </criteria-editor>
-  <button (click)="triggerImport()" [disabled]="!editMode.isEnabled">Import Classes</button>
   <!-- Edit mode toggle moved to top‑right corner in app.html -->
 </div>

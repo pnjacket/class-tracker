@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassStoreService } from '../../services/class-store.service';
@@ -11,11 +11,27 @@ import { EditModeService } from '../../services/drag-toggle.service';
   templateUrl: './date-config.component.html',
   styleUrls: ['./date-config.component.scss']
 })
-export class DateConfigComponent {
+export class DateConfigComponent implements OnInit {
   constructor(public store: ClassStoreService, public editMode: EditModeService) {}
 
   get activeClass() { return this.store.activeClass; }
   get activeView() { return this.store.activeView; }
+
+  get sortedViews() {
+    if (!this.activeClass) return [];
+    // Clone and sort descending by date (ISO strings)
+    return [...this.activeClass.views].sort((a, b) => b.date.localeCompare(a.date));
+  }
+  ngOnInit(): void {
+    if (this.activeClass && this.sortedViews.length) {
+      const latest = this.sortedViews[0];
+      if (!this.activeView || this.activeView.date !== latest.date) {
+        this.store.onViewChange(latest.date);
+      }
+    }
+  }
+
+
 
   addView(): void {
     const dateInput = window.prompt('Enter view date (YYYY-MM-DD):', new Date().toISOString().slice(0,10));

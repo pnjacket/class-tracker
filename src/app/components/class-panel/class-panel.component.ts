@@ -14,11 +14,15 @@ import { EditModeService } from '../../services/drag-toggle.service';
 })
 export class ClassPanelComponent {
   showCriteriaEditor = false;
-
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
+  
   constructor(public store: ClassStoreService, public editMode: EditModeService) {}
 
+  showDataMenu = false;
+
+  toggleDataMenu(): void { this.showDataMenu = !this.showDataMenu; }
+
+  closeDataMenu(): void { this.showDataMenu = false; }
   // ----- Getters -----
   get classes() { return this.store.classes; }
   get activeClassId() { return this.store.activeClassId; }

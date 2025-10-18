@@ -2,7 +2,7 @@
   <!-- Disabled when edit mode (drag‑and‑drop) is off -->
   <select [ngModel]="activeView?.date"
           (ngModelChange)="onViewChange($event)">
-    <option *ngFor="let v of activeClass.views" [value]="v.date">{{v.date}}</option>
+    <option *ngFor="let v of sortedViews" [value]="v.date">{{v.date}}</option>
   </select>
   <button (click)="addView()" [disabled]="!editMode.isEnabled">Add Date</button>
   <button (click)="removeView(activeView?.date)"
