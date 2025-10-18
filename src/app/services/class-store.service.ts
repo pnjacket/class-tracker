@@ -1,7 +1,7 @@
 // Service to hold all business logic for classroom app
 import { Injectable } from '@angular/core';
 import { StorageService } from '../services/storage.service';
-import { ClassRoom, Cell, Student, ClassView, Criterion, migrateCriteria } from '../models';
+import { ClassRoom, Cell, Student, ClassView, Criterion } from '../models';
 import { uuid } from '../utils';
 
 @Injectable({ providedIn: 'root' })
@@ -20,13 +20,10 @@ export class ClassStoreService {
   initialize(): void {
     this.classes = this.storage.loadAll();
     // Ensure required arrays and migrate legacy criteria
+    // Ensure each class has a views array. Legacy `criteria` fields are ignored and will be
+    // removed on the next save.
     this.classes.forEach(c => {
       if (!c.views) c.views = [];
-      if (!c.criteria) c.criteria = [];
-      // Migrate string[] criteria to new model (if needed)
-      if (Array.isArray((c as any).criteria) && typeof (c as any).criteria[0] === 'string') {
-        c.criteria = migrateCriteria((c as any).criteria);
-      }
     });
 
     // Create a default class when none exist
@@ -45,14 +42,16 @@ export class ClassStoreService {
   }
 
   // ----- Private helpers -----
+  /** Ensure a class has the required array structures. */
   private ensureClassData(cls: ClassRoom): void {
     if (!cls.views) cls.views = [];
-    if (!cls.criteria) cls.criteria = [];
+    // No class‑level criteria any more.
   }
 
   /** Create a new class and persist it */
   createClass(title: string, rows: number, cols: number): ClassRoom {
-    const newClass: ClassRoom = { classId: uuid(), title, rows, cols, criteria: [], views: [] };
+    // New classes start with no criteria – they will be added per view.
+    const newClass: ClassRoom = { classId: uuid(), title, rows, cols, views: [] };
     this.classes.push(newClass);
     this.persist();
     return newClass;
@@ -93,13 +92,29 @@ export class ClassStoreService {
     for (let r = 0; r < sourceGrid.length; r++) {
       for (let c = 0; c < sourceGrid[r].length; c++) {
         const cell = sourceGrid[r][c];
-        if (cell.student && cell.student.notes) {
-          cell.student.notes = '';
+        if (cell.student) {
+          // reset notes
+          if (cell.student.notes) cell.student.notes = '';
+          // reset counters according to criteria (default to 0 for numeric counters)
+          if (this.activeView?.criteria) {
+            const critList = this.activeView.criteria;
+            Object.keys(cell.student.counters).forEach(key => {
+              const critDef = critList.find(c => c.name === key);
+              if (critDef && critDef.type === 'counter') {
+                cell.student!.counters[key] = 0;
+              } else {
+                cell.student!.counters[key] = '';
+              }
+            });
+          }
         }
       }
     }
 
-    const newView: ClassView = { date, grid: sourceGrid };
+    // Copy criteria from the active view (if any). Use a deep copy to avoid reference sharing.
+    const copiedCriteria: Criterion[] = this.activeView?.criteria ? JSON.parse(JSON.stringify(this.activeView.criteria)) : [];
+
+    const newView: ClassView = { date, grid: sourceGrid, criteria: copiedCriteria };
     this.activeClass.views.push(newView);
     this.persist();
     this.activeView = newView;
@@ -164,7 +179,8 @@ export class ClassStoreService {
           newGrid[r][c].student = { ...cell.student, counters: { ...cell.student.counters } };
         } else {
           // Preserve student info but reset each counter based on its type
-          const criteria = this.activeClass?.criteria ?? [];
+          // Use view‑specific criteria (class‑level no longer exists)
+          const criteria = this.getEffectiveCriteria(undefined);
           const resetCounters: { [key: string]: any } = {};
           for (const key of Object.keys(cell.student.counters)) {
             const crit = criteria.find(c => c.name === key);
@@ -184,8 +200,9 @@ export class ClassStoreService {
   }
 
   /** Get a criterion definition by name */
+  /** Retrieve a criterion definition from the active view (if any). */
   getCriterion(name: string): Criterion | undefined {
-    return this.activeClass?.criteria?.find(c => c.name === name);
+    return this.activeView?.criteria?.find(c => c.name === name);
   }
 
   // ----- Student actions -----
@@ -262,50 +279,18 @@ export class ClassStoreService {
 
   // ----- Helper for criteria -----
   /** Return the effective list of criteria for a view (view‑specific overrides class) */
+  /** Return the effective list of criteria for a view (view‑specific only). */
   private getEffectiveCriteria(view?: ClassView): Criterion[] {
-    return view?.criteria ?? this.activeClass?.criteria ?? [];
+    return view?.criteria ?? [];
   }
 
   // ----- Criteria handling -----
   /** Update class‑level criteria (applies to all views that don’t override) */
+  /** Class‑level criteria are no longer used. This method forwards to the active view
+   * (if one exists) for backward compatibility. */
   updateClassCriteria(updated: Criterion[]): void {
-    if (!this.activeClass) return;
-    const prev = this.activeClass.criteria || [];
-    // Reset values if type changed for existing criteria
-    updated.forEach(newC => {
-      const oldC = prev.find(o => o.name === newC.name);
-      if (oldC && oldC.type !== newC.type) {
-        // Update all views that don’t have their own override
-        this.activeClass.views.forEach(view => {
-          if (view.criteria) return; // skip overridden view
-          view.grid.forEach(row => row.forEach(cell => {
-            if (!cell.student) return;
-            const stu = cell.student;
-            if (newC.type === 'counter') stu.counters[newC.name] = 0;
-            else stu.counters[newC.name] = '';
-          }));
-        });
-      }
-    });
-
-    const names = updated.map(c => c.name);
-    // Apply to all views without their own criteria override
-    this.activeClass.views.forEach(view => {
-      if (view.criteria) return; // skip overridden view
-      view.grid.forEach(row => row.forEach(cell => {
-        if (!cell.student) return;
-        const counters = cell.student.counters;
-        // add missing criteria
-        updated.forEach(c => {
-          if (!(c.name in counters))
-            counters[c.name] = c.type === 'counter' ? 0 : (c.options && c.options.length ? c.options[0] : '');
-        });
-        // remove extra criteria
-        Object.keys(counters).forEach(k => { if (!names.includes(k)) delete counters[k]; });
-      }));
-    });
-    this.activeClass.criteria = updated;
-    this.persist();
+    if (!this.activeView) return;
+    this.updateViewCriteria(this.activeView.date, updated);
   }
 
   /** Update criteria for a specific view/date (overrides class defaults) */
@@ -362,8 +347,9 @@ export class ClassStoreService {
   // ----- Export helpers -----
   exportCsvBlob(): Blob {
     if (!this.activeClass) return new Blob([''], { type: 'text/csv;charset=utf-8;' });
-    const criteria = this.activeClass.criteria || [];
-    const headers = ['Student Name', ...criteria.map(c => c.name), 'Date'];
+    // Aggregate criteria from all views for CSV export
+    const criteria: Criterion[] = this.getAllCriteria();
+    const headers = ['Student Name', ...criteria.map((c: Criterion) => c.name), 'Date'];
     const rows: string[] = [headers.join(',')];
     for (const view of this.activeClass.views) {
       const date = view.date;
@@ -390,14 +376,80 @@ export class ClassStoreService {
     return new Blob([dataStr], { type: 'application/json' });
   }
 
+  /** Export CSV collated by student (no date). Counter values are summed, predefined values concatenated with '|'. */
+  exportStudentCollatedCsvBlob(): Blob {
+    if (!this.activeClass) return new Blob([''], { type: 'text/csv;charset=utf-8;' });
+    // Aggregate criteria from all views for collated CSV
+    const criteria: Criterion[] = this.getAllCriteria();
+    const headers = ['Student Name', ...criteria.map((c: Criterion) => c.name)];
+    const rows: string[] = [headers.join(',')];
+
+    // Aggregate per student ID across all views
+    const agg: { [id: string]: { name: string; counters: { [key: string]: any } } } = {};
+    this.activeClass.views.forEach(view => {
+      view.grid.forEach(row => {
+        row.forEach(cell => {
+          if (!cell.student) return;
+          const stu = cell.student;
+          // initialise entry if missing
+          if (!agg[stu.id]) {
+            const initCounters: { [key: string]: any } = {};
+            criteria.forEach(c => {
+              initCounters[c.name] = c.type === 'counter' ? 0 : '';
+            });
+            agg[stu.id] = { name: stu.name, counters: initCounters };
+          }
+          const target = agg[stu.id];
+          // merge counters
+          Object.entries(stu.counters).forEach(([key, value]) => {
+            const crit = criteria.find(c => c.name === key);
+            if (!crit) return; // unknown criterion
+            if (crit.type === 'counter') {
+              target.counters[key] = (target.counters[key] || 0) + (typeof value === 'number' ? value : 0);
+            } else { // predefined string
+              const cur = target.counters[key] as string;
+              const valStr = String(value);
+              if (!cur) {
+                target.counters[key] = valStr;
+              } else if (valStr && !cur.split('|').includes(valStr)) {
+                target.counters[key] = cur + '|' + valStr;
+              }
+            }
+          });
+        });
+      });
+    });
+
+    // Build rows
+    Object.values(agg).forEach(entry => {
+      const vals: string[] = [];
+      vals.push(`"${entry.name.replace(/"/g, '""')}"`);
+      criteria.forEach(c => {
+        let v = entry.counters[c.name];
+        if (c.type === 'counter') {
+          v = v ?? 0;
+        } else {
+          v = v ?? '';
+        }
+        if (typeof v === 'string') {
+          vals.push(`"${v.replace(/"/g, '""')}"`);
+        } else {
+          vals.push(`${v}`);
+        }
+      });
+      rows.push(vals.join(','));
+    });
+
+    const csv = rows.join('\r\n');
+    return new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  }
+
   /** Import a class from raw JSON string */
   importData(jsonStr: string): void {
     try {
       const imported: ClassRoom = JSON.parse(jsonStr);
-      // migrate legacy criteria if needed
-      if (Array.isArray((imported as any).criteria) && typeof (imported as any).criteria[0] === 'string') {
-        imported.criteria = migrateCriteria((imported as any).criteria);
-      }
+      // Legacy class‑level criteria are ignored – remove if present.
+      if ((imported as any).criteria) delete (imported as any).criteria;
       const existingIdx = this.classes.findIndex(c => c.title === imported.title);
       if (existingIdx !== -1) {
         // overwrite
@@ -413,5 +465,17 @@ export class ClassStoreService {
   // ----- Utility -----
   public persist(): void {
     this.storage.saveAll(this.classes);
+  }
+
+  /** Aggregate all unique criteria used across the active class's views. */
+  private getAllCriteria(): Criterion[] {
+    if (!this.activeClass) return [];
+    const map = new Map<string, Criterion>();
+    this.activeClass.views.forEach(v => {
+      (v.criteria ?? []).forEach(c => {
+        if (!map.has(c.name)) map.set(c.name, c);
+      });
+    });
+    return Array.from(map.values());
   }
 }

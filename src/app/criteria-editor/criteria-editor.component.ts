@@ -12,9 +12,17 @@ import { Criterion } from '../models';
   styleUrls: ['./criteria-editor.component.scss']
 })
 export class CriteriaEditorComponent {
-  @Input() criteria: Criterion[] = [];
+  @Input() set criteria(value: Criterion[]) {
+    // Make a shallow copy to avoid mutating the parent array directly
+    this.localCriteria = value ? [...value] : [];
+  }
+  get criteria(): Criterion[] { return this.localCriteria; }
+
   @Output() save = new EventEmitter<Criterion[]>();
   @Output() cancel = new EventEmitter<void>();
+
+  // Internal mutable copy used for editing
+  private localCriteria: Criterion[] = [];
 
   // UI state for editing/adding a single criterion
   editingIndex: number | null = null; // null -> adding new
@@ -32,7 +40,7 @@ export class CriteriaEditorComponent {
   }
 
   edit(i: number): void {
-    const c = this.criteria[i];
+    const c = this.localCriteria[i];
     this.editingIndex = i;
     this.name = c.name;
     this.type = c.type;
@@ -40,8 +48,8 @@ export class CriteriaEditorComponent {
   }
 
   delete(i: number): void {
-    if (confirm(`Delete criterion "${this.criteria[i].name}"?`)) {
-      this.criteria.splice(i, 1);
+    if (confirm(`Delete criterion "${this.localCriteria[i].name}"?`)) {
+      this.localCriteria.splice(i, 1);
     }
   }
 
@@ -54,14 +62,17 @@ export class CriteriaEditorComponent {
       options: this.isPredefined ? this.optionsText.split(',').map(o => o.trim()).filter(Boolean) : undefined
     };
     if (this.editingIndex === null) {
-      this.criteria.push(newCrit);
+      // push a new element and create a fresh reference so Angular detects the change
+      this.localCriteria = [...this.localCriteria, newCrit];
     } else {
-      this.criteria[this.editingIndex] = newCrit;
+      const copy = [...this.localCriteria];
+      copy[this.editingIndex] = newCrit;
+      this.localCriteria = copy;
     }
     this.startAdd();
   }
 
   close(): void { this.cancel.emit(); }
 
-  saveAll(): void { this.save.emit(this.criteria); }
+  saveAll(): void { this.save.emit(this.localCriteria); }
 }

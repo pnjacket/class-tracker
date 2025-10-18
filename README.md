@@ -22,13 +22,14 @@ A simple Angular application that lets you manage multiple **Class** objects, ea
 ## Features
 - Multiple classes – create, rename, delete, and switch between them.
 - Configurable grid size per class (rows × columns).
-- Date‑based *views* – each class can have multiple seating layouts for different dates.
+- **Date‑based views** – each class can have multiple seating layouts for different dates. When a new date is added it automatically inherits the current view’s **criteria** (counter definitions) and student counters are reset to their default values (`0` for numeric counters, empty string for predefined ones).
 - Add a student name to any empty cell.
-- Increment/decrement counters for each student via a modal dialog. Counters are dynamically defined by the **criteria** list.
+- Increment/decrement counters for each student via a modal dialog. Counters are defined by the **criteria** list attached to a view.
 - Drag‑and‑drop students between seats.
 - Import/Export a class as JSON, and export all data of a class as CSV (one row per student per view).
-- Edit the list of criteria (counter names) for a class; counters are automatically added/removed on edit.
+- Edit the criteria for the *active* view; counters are added/removed automatically on edit.
 - All changes are saved instantly to `localStorage` – reload the page and everything is restored.
+
 
 ---
 

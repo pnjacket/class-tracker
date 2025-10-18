@@ -47,7 +47,7 @@ export interface ClassRoom {
   title: string;   // e.g. “Math‑101”
   rows: number;
   cols: number;
-  criteria: Criterion[]; // list of criterion objects for this class
+  // criteria removed – now handled per view (date)
   // grid: Cell[][]; // deprecated – use views instead
   // kept optional for backward compatibility
   grid?: Cell[][];

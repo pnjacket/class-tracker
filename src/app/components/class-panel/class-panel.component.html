@@ -12,6 +12,7 @@
     <div class="data-menu" (click)="$event.stopPropagation()">
       <button (click)="exportClass(); closeDataMenu()">Export Class</button>
       <button (click)="exportCsv(); closeDataMenu()">Export CSV</button>
+      <button (click)="exportStudentCollatedCsv(); closeDataMenu()">Export Student Collated CSV</button>
       <button (click)="triggerImport(); closeDataMenu()" [disabled]="!editMode.isEnabled">Import Classes</button>
     </div>
   </div>
@@ -22,4 +23,5 @@
     </criteria-editor>
   <input type="file" #fileInput style="display:none" (change)="importClasses($event)" />
   <!-- Edit mode toggle moved to top‑right corner in app.html -->
+
 </div>

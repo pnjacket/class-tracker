@@ -40,7 +40,8 @@ export class ClassPanelComponent {
   get activeView() { return this.store.activeView; }
 
   /** Criteria for the current view, falling back to class‑level */
-  get displayedCriteria(): Criterion[] { return this.activeView?.criteria ?? (this.activeClass?.criteria || []); }
+  /** Criteria for the current view – fall back to an empty array if none are defined. */
+  get displayedCriteria(): Criterion[] { return this.activeView?.criteria ?? []; }
 
   // ----- UI Actions -----
   onClassChange(): void {
@@ -97,6 +98,16 @@ export class ClassPanelComponent {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `${this.activeClass.title || 'class'}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  /** Export collated student CSV (no date) */
+  exportStudentCollatedCsv(): void {
+    const blob = this.store.exportStudentCollatedCsvBlob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${this.activeClass.title || 'class'}_student_collated_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   }
