@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ClassStoreService } from '../../services/class-store.service';
 import { CriteriaEditorComponent } from '../../criteria-editor/criteria-editor.component';
 import { EditModeService } from '../../services/drag-toggle.service';
+import { Criterion } from '../../models';
 
 @Component({
   selector: 'app-class-panel',
@@ -38,6 +39,9 @@ export class ClassPanelComponent {
   get activeClass() { return this.store.activeClass; }
   get activeView() { return this.store.activeView; }
 
+  /** Criteria for the current view, falling back to class‑level */
+  get displayedCriteria(): Criterion[] { return this.activeView?.criteria ?? (this.activeClass?.criteria || []); }
+
   // ----- UI Actions -----
   onClassChange(): void {
     if (this.activeClassId) this.store.setActiveClassById(this.activeClassId);
@@ -67,7 +71,13 @@ export class ClassPanelComponent {
   openCriteriaEditor(): void { this.showCriteriaEditor = true; }
 
   onCriteriaSaved(updated: any): void {
-    this.store.updateCriteria(updated);
+    if (this.activeView) {
+      // Update criteria for the specific date/view
+      this.store.updateViewCriteria(this.activeView.date, updated);
+    } else {
+      // Update class‑level criteria
+      this.store.updateClassCriteria(updated);
+    }
     this.showCriteriaEditor = false;
   }
 

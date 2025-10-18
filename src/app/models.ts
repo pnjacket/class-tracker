@@ -20,6 +20,7 @@ export interface Cell {
 export interface ClassView {
   date: string; // ISO date string e.g., "2025-10-11"
   grid: Cell[][]; // seating arrangement for this date
+  criteria?: Criterion[]; // optional criteria specific to this view (overrides class defaults)
 }
 
 /** The whole classroom (a "Class") */

@@ -191,8 +191,9 @@ export class ClassStoreService {
   // ----- Student actions -----
   addStudent(cell: Cell, name: string): void {
     if (!this.activeClass) return;
+    const effectiveCriteria = this.getEffectiveCriteria(this.activeView);
     const counters: { [key: string]: any } = {};
-    this.activeClass.criteria?.forEach(crit => {
+    effectiveCriteria.forEach(crit => {
       if (crit.type === 'counter') {
         counters[crit.name] = 0;
       } else {
@@ -259,15 +260,24 @@ export class ClassStoreService {
     this.draggedFromCell = undefined;
   }
 
+  // ----- Helper for criteria -----
+  /** Return the effective list of criteria for a view (view‑specific overrides class) */
+  private getEffectiveCriteria(view?: ClassView): Criterion[] {
+    return view?.criteria ?? this.activeClass?.criteria ?? [];
+  }
+
   // ----- Criteria handling -----
-  updateCriteria(updated: Criterion[]): void {
+  /** Update class‑level criteria (applies to all views that don’t override) */
+  updateClassCriteria(updated: Criterion[]): void {
     if (!this.activeClass) return;
     const prev = this.activeClass.criteria || [];
     // Reset values if type changed for existing criteria
     updated.forEach(newC => {
       const oldC = prev.find(o => o.name === newC.name);
       if (oldC && oldC.type !== newC.type) {
+        // Update all views that don’t have their own override
         this.activeClass.views.forEach(view => {
+          if (view.criteria) return; // skip overridden view
           view.grid.forEach(row => row.forEach(cell => {
             if (!cell.student) return;
             const stu = cell.student;
@@ -279,17 +289,57 @@ export class ClassStoreService {
     });
 
     const names = updated.map(c => c.name);
+    // Apply to all views without their own criteria override
     this.activeClass.views.forEach(view => {
+      if (view.criteria) return; // skip overridden view
       view.grid.forEach(row => row.forEach(cell => {
         if (!cell.student) return;
         const counters = cell.student.counters;
-        // add missing
-        updated.forEach(c => { if (!(c.name in counters)) counters[c.name] = c.type === 'counter' ? 0 : (c.options && c.options.length ? c.options[0] : ''); });
-        // remove extra
+        // add missing criteria
+        updated.forEach(c => {
+          if (!(c.name in counters))
+            counters[c.name] = c.type === 'counter' ? 0 : (c.options && c.options.length ? c.options[0] : '');
+        });
+        // remove extra criteria
         Object.keys(counters).forEach(k => { if (!names.includes(k)) delete counters[k]; });
       }));
     });
     this.activeClass.criteria = updated;
+    this.persist();
+  }
+
+  /** Update criteria for a specific view/date (overrides class defaults) */
+  updateViewCriteria(date: string, updated: Criterion[]): void {
+    if (!this.activeClass) return;
+    const view = this.activeClass.views.find(v => v.date === date);
+    if (!view) return;
+    const prev = view.criteria || [];
+    // Reset values if type changed
+    updated.forEach(newC => {
+      const oldC = prev.find(o => o.name === newC.name);
+      if (oldC && oldC.type !== newC.type) {
+        view.grid.forEach(row => row.forEach(cell => {
+          if (!cell.student) return;
+          const stu = cell.student;
+          if (newC.type === 'counter') stu.counters[newC.name] = 0;
+          else stu.counters[newC.name] = '';
+        }));
+      }
+    });
+
+    const names = updated.map(c => c.name);
+    view.grid.forEach(row => row.forEach(cell => {
+      if (!cell.student) return;
+      const counters = cell.student.counters;
+      // add missing
+      updated.forEach(c => {
+        if (!(c.name in counters))
+          counters[c.name] = c.type === 'counter' ? 0 : (c.options && c.options.length ? c.options[0] : '');
+      });
+      // remove extra
+      Object.keys(counters).forEach(k => { if (!names.includes(k)) delete counters[k]; });
+    }));
+    view.criteria = updated;
     this.persist();
   }
 

@@ -16,7 +16,7 @@
     </div>
   </div>
     <criteria-editor *ngIf="showCriteriaEditor"
-      [criteria]="activeClass.criteria || []"
+      [criteria]="displayedCriteria"
       (save)="onCriteriaSaved($event)"
       (cancel)="onCriteriaCancel()">
     </criteria-editor>

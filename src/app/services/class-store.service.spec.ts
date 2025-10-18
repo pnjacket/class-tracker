@@ -57,7 +57,7 @@ describe('ClassStoreService', () => {
 
   it('should add a student with counters based on criteria', () => {
     // set up a criterion
-    service.updateCriteria([
+    service.updateClassCriteria([
       { name: 'Attendance', type: 'counter' },
       { name: 'Mood', type: 'predefined', options: ['Happy', 'Sad'] }
     ]);
@@ -69,7 +69,7 @@ describe('ClassStoreService', () => {
   });
 
   it('should increment and decrement numeric counters', () => {
-    service.updateCriteria([{ name: 'Points', type: 'counter' }]);
+    service.updateClassCriteria([{ name: 'Points', type: 'counter' }]);
     const cell = service.activeView!.grid[0][0];
     service.addStudent(cell, 'Alice');
     service.incrementKey(cell, 'Points');
