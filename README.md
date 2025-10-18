@@ -15,7 +15,6 @@ A simple Angular application that lets you manage multiple **Class** objects, ea
 - [Data Persistence Details](#data-persistence-details)
 - [Extending / Customizing](#extending--customizing)
 - [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -29,7 +28,6 @@ A simple Angular application that lets you manage multiple **Class** objects, ea
 - Import/Export a class as JSON, and export all data of a class as CSV (one row per student per view).
 - Edit the criteria for the *active* view; counters are added/removed automatically on edit.
 - All changes are saved instantly to `localStorage` – reload the page and everything is restored.
-
 
 ---
 
@@ -114,12 +112,10 @@ The `StorageService` stores a JSON array under the key **`classroom-app-data`** 
 ---
 
 ## Contributing
-Contributions are welcome! Please fork the repository, make your changes, and submit a pull request. If you plan to add significant features, consider opening an issue first for discussion.
-
----
 
 ## License
-This project is released under the MIT License (see `LICENSE` file if present).
+The project is licensed under the terms described in [LICENSE.md](LICENSE.md).
+Contributions are welcome! Please fork the repository, make your changes, and submit a pull request. If you plan to add significant features, consider opening an issue first for discussion.
 
 ---
 
