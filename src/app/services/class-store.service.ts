@@ -468,7 +468,7 @@ export class ClassStoreService {
   }
 
   /** Aggregate all unique criteria used across the active class's views. */
-  private getAllCriteria(): Criterion[] {
+  public getAllCriteria(): Criterion[] {
     if (!this.activeClass) return [];
     const map = new Map<string, Criterion>();
     this.activeClass.views.forEach(v => {

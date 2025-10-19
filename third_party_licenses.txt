@@ -1,30 +1,21 @@
-Third Party Licenses
+Third-Party Licenses
 =====================
 
-This file lists the open‑source libraries used by **class-tracker** and their respective license types, in order to comply with each library's licensing requirements.
+The following open‑source libraries are used by **class-tracker**. Their respective license types are listed to comply with attribution requirements.
 
 ### Runtime dependencies (package.json → "dependencies")
-- @angular/common – MIT License
-- @angular/compiler – MIT License
-- @angular/core – MIT License
-- @angular/forms – MIT License
-- @angular/platform-browser – MIT License
-- @angular/router – MIT License
-- rxjs – Apache License 2.0
-- tslib – MIT License
-- zone.js – MIT License
 
-### Development dependencies (package.json → "devDependencies")
-- @angular/build – MIT License
-- @angular/cli – MIT License
-- @angular/compiler-cli – MIT License
-- @types/jasmine – MIT License
-- jasmine-core – MIT License
-- karma – MIT License
-- karma-chrome-launcher – MIT License
-- karma-coverage – MIT License
-- karma-jasmine – MIT License
-- karma-jasmine-html-reporter – MIT License
-- typescript – Apache License 2.0
+| Package | License |
+|---------|----------|
+| @angular/common | MIT |
+| @angular/compiler | MIT |
+| @angular/core | MIT |
+| @angular/forms | MIT |
+| @angular/platform-browser | MIT |
+| @angular/router | MIT |
+| rxjs | Apache-2.0 |
+| tslib | 0BSD |
+| zone.js | MIT |
+| chart.js | MIT |
 
-*All license information was obtained from the respective package repositories (npmjs.com) and their LICENSE files.*
+*License information was retrieved from the npm registry (`npm view <package> license`).*

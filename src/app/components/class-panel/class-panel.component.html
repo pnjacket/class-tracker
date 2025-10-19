@@ -8,6 +8,18 @@
   <button (click)="deleteActiveClass()" [disabled]="!activeClass || !editMode.isEnabled">Delete</button>
   <button (click)="openCriteriaEditor()" [disabled]="!activeClass || !editMode.isEnabled">Edit Criteria</button>
   <button (click)="toggleDataMenu()" [disabled]="!activeClass">Data</button>
+    <button (click)="openChart()" [disabled]="!activeClass">Trend</button>
+  <div *ngIf="showChart" class="chart-dialog" (click)="closeChart()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <!-- Selection UI -->
+      <div *ngIf="!selectedCriterion" class="criterion-select">
+        <p>Choose criterion:</p>
+        <button *ngFor="let c of numericCriteria" (click)="chooseCriterion(c.name)">{{c.name}}</button>
+      </div>
+      <!-- Chart canvas shown after selection -->
+      <canvas *ngIf="selectedCriterion" #chartCanvas width="600" height="400"></canvas>
+    </div>
+  </div>
   <div *ngIf="showDataMenu" class="data-overlay" (click)="closeDataMenu()">
     <div class="data-menu" (click)="$event.stopPropagation()">
       <button (click)="exportClass(); closeDataMenu()">Export Class</button>
