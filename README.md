@@ -115,8 +115,3 @@ The `StorageService` stores a JSON array under the key **`classroom-app-data`** 
 
 ## License
 The project is licensed under the terms described in [LICENSE.md](LICENSE.md).
-Contributions are welcome! Please fork the repository, make your changes, and submit a pull request. If you plan to add significant features, consider opening an issue first for discussion.
-
----
-
-*Generated on 2025‑10‑16 by Goose (Block’s open‑source AI assistant).*
