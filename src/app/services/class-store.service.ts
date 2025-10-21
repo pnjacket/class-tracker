@@ -18,21 +18,26 @@ export class ClassStoreService {
 
   /** Initialize store – load persisted data, ensure structures, set defaults */
   initialize(): void {
+    // Load raw data and handle versioning
+    const raw = this.storage.getRaw();
+    if (raw && typeof raw === 'object' && 'version' in raw && raw.version !== StorageService.APP_VERSION) {
+      // Backup old data under a timestamped key
+      const backupKey = `backup-${new Date().toISOString()}`;
+      localStorage.setItem(backupKey, JSON.stringify(raw));
+      // Re‑wrap data with current version (preserve classes)
+      this.storage.saveAll(this.storage.loadAll());
+    }
     this.classes = this.storage.loadAll();
     // Ensure required arrays and migrate legacy criteria
-    // Ensure each class has a views array. Legacy `criteria` fields are ignored and will be
-    // removed on the next save.
     this.classes.forEach(c => {
       if (!c.views) c.views = [];
     });
-
     // Create a default class when none exist
     if (this.classes.length === 0) {
       const def = this.createClass('Default Class', 5, 5);
       const today = new Date().toISOString().slice(0, 10) || '2020-01-01';
       this.addViewForClass(def, today);
     }
-
     // Set active class & view
     this.activeClassId = this.classes[0].classId;
     this.setActiveClassById(this.activeClassId);
@@ -325,6 +330,22 @@ export class ClassStoreService {
       Object.keys(counters).forEach(k => { if (!names.includes(k)) delete counters[k]; });
     }));
     view.criteria = updated;
+    this.persist();
+  }
+
+  /** Reset the entire database to a clean state (keeps any backup entries) */
+  resetDatabase(): void {
+    if (!window.confirm('Reset all application data? This will clear current data but keep any backups.')) return;
+    // Clear main storage key
+    this.storage.setRaw({ version: StorageService.APP_VERSION, classes: [] });
+    // Re‑initialize with default class and view
+    this.classes = [];
+    const def = this.createClass('Default Class', 5, 5);
+    const today = new Date().toISOString().slice(0, 10) || '2020-01-01';
+    this.addViewForClass(def, today);
+    this.activeClassId = def.classId;
+    this.setActiveClassById(this.activeClassId);
+    this.activeView = this.activeClass.views[0];
     this.persist();
   }
 

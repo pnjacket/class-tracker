@@ -10,7 +10,7 @@
   <button (click)="toggleDataMenu()" [disabled]="!activeClass">Data</button>
     <button (click)="openChart()" [disabled]="!activeClass">Trend</button>
   <div *ngIf="showChart" class="chart-dialog" (click)="closeChart()">
-    <div class="dialog-content" (click)="$event.stopPropagation()">
+    <div class="dialog-content" [ngClass]="selectedCriterion ? 'chart-mode' : 'select-mode'" (click)="$event.stopPropagation()">
       <!-- Selection UI -->
       <div *ngIf="!selectedCriterion" class="criterion-select">
         <p>Choose criterion:</p>
@@ -26,6 +26,7 @@
       <button (click)="exportCsv(); closeDataMenu()">Export CSV</button>
       <button (click)="exportStudentCollatedCsv(); closeDataMenu()">Export Student Collated CSV</button>
       <button (click)="triggerImport(); closeDataMenu()" [disabled]="!editMode.isEnabled">Import Classes</button>
+      <button (click)="store.resetDatabase(); closeDataMenu()">Reset Data</button>
     </div>
   </div>
     <criteria-editor *ngIf="showCriteriaEditor"
