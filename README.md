@@ -4,6 +4,11 @@ A simple Angular application that lets you manage multiple **Class** objects, ea
 
 ---
 
+## 🎉 Project Overview
+
+This is a **commercial‑licensed** application, but the entire source code is openly available for anyone to explore. You can test‑drive the live demo at <https://pnjacket.github.io/class-tracker>. If you spot any bugs or have suggestions, please let us know by opening an issue here: https://github.com/pnjacket/class-tracker/issues.
+
+
 ## Table of Contents
 - [Features](#features)
 - [Project Structure](#project-structure)
@@ -112,6 +117,10 @@ The `StorageService` stores a JSON array under the key **`classroom-app-data`** 
 ---
 
 ## Contributing
+
+**Contribution Policy**
+
+All contributions submitted to this repository will become the exclusive property of the project owner. By submitting code, documentation, or any other material you irrevocably assign all rights, title, and interest in such contributions to the owner. The owner may incorporate, modify, distribute, and commercialize the contributed work under the project's commercial license. Contributors waive any claim to ownership or royalties.
 
 ## License
 The project is licensed under the terms described in [LICENSE.md](LICENSE.md).
