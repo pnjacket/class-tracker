@@ -38,11 +38,14 @@ export class ClassStoreService {
       const today = new Date().toISOString().slice(0, 10) || '2020-01-01';
       this.addViewForClass(def, today);
     }
-    // Set active class & view
+    // Set active class & view – pick most recent view
     this.activeClassId = this.classes[0].classId;
     this.setActiveClassById(this.activeClassId);
-    if (this.activeClass && this.activeClass.views.length) {
-      this.activeView = this.activeClass.views[0];
+    if (this.activeClass?.views?.length) {
+      const latest = this.activeClass.views.reduce((a, b) => (a.date > b.date ? a : b));
+      this.activeView = latest;
+    } else {
+      this.activeView = undefined;
     }
   }
 
@@ -69,8 +72,13 @@ export class ClassStoreService {
       this.ensureClassData(found);
       this.activeClass = found;
       this.activeClassId = id;
-      // default view
-      this.activeView = this.activeClass.views[0];
+      // Choose the most recent view (by ISO date string) as active
+      if (this.activeClass.views?.length) {
+        const latest = this.activeClass.views.reduce((a, b) => (a.date > b.date ? a : b));
+        this.activeView = latest;
+      } else {
+        this.activeView = undefined;
+      }
     }
   }
 
@@ -245,7 +253,7 @@ export class ClassStoreService {
   decrementKey(cell: Cell, key: string): void {
     if (!cell.student) return;
     const cur = cell.student.counters[key];
-    if (typeof cur === 'number' && cur > 0) cell.student.counters[key] = cur - 1;
+    if (typeof cur === 'number') cell.student.counters[key] = cur - 1;
     if (this.activeView) this.activeView.grid = [...this.activeView.grid];
     this.persist();
   }

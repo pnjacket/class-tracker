@@ -39,7 +39,13 @@ export class DateConfigComponent implements OnInit {
     this.store.addView(dateInput);
   }
 
-  removeView(date?: string): void { if (date) this.store.removeView(date); }
+  removeView(date?: string): void {
+    if (!date) return;
+    const confirmed = window.confirm(`Are you sure you want to delete the view for ${date}? This cannot be undone.`);
+    if (confirmed) {
+      this.store.removeView(date);
+    }
+  }
 
   onViewChange(date: string): void { this.store.onViewChange(date); }
 }

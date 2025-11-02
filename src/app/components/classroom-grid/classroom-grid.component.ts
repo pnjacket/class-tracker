@@ -9,10 +9,19 @@ import { ClassStoreService } from '../../services/class-store.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './classroom-grid.component.html',
-  styleUrls: ['./classroom-grid.component.scss']
+  styleUrls: ['./classroom-grid.component.scss'],
 })
 export class ClassroomGridComponent implements AfterViewInit {
   constructor(public store: ClassStoreService, public editMode: EditModeService, private host: ElementRef) {}
+  /** Return CSS class map for a counter value */
+  getCounterClasses(value: any): {[key:string]: boolean} {
+    return {
+      'zero-bg': value === 0,
+      'negative-bg': typeof value === 'number' && value < 0,
+      'positive-bg': typeof value === 'number' && value > 0
+    };
+  }
+
 
   @ViewChildren('cellDiv') cells!: QueryList<ElementRef<HTMLElement>>;
 
@@ -28,6 +37,8 @@ export class ClassroomGridComponent implements AfterViewInit {
     };
 
     updateHeight();
+
+
     this.cells.changes.subscribe(() => setTimeout(updateHeight, 0));
   }
 

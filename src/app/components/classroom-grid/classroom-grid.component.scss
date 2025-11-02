@@ -99,12 +99,15 @@
   align-items: center;
 }
 
-/* Red‑tint background for counters that are zero */
+/* Background colors for counter values */
 .counter-controls.zero-bg {
-  background-color: #ffdddd; /* light red */
+  background-color: #f0f0f0; /* light grey */
+}
+.counter-controls.negative-bg {
+  background-color: #ffdddd; /* light red for negatives */
 }
 .counter-controls.positive-bg {
-  background-color: #ddffdd; /* light green */
+  background-color: #ddffdd; /* light green for positives */
 }
 .predef-controls.zero-bg {
   background-color: #ffdddd; /* light red */

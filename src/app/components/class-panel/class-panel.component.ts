@@ -15,6 +15,16 @@ import { Criterion } from '../../models';
   styleUrls: ['./class-panel.component.scss']
 })
 export class ClassPanelComponent implements OnInit {
+toggleLables(): void {
+    if (!this.chartInstance || !Array.isArray(this.chartInstance.data?.datasets) || this.chartInstance.data.datasets.length === 0) return;
+    // Use the first dataset's current hidden state as reference
+    const first = this.chartInstance.data.datasets[0] as any;
+    const targetHidden = !(first.hidden ?? false); // toggle: if currently visible, hide; else show
+    this.chartInstance.data.datasets.forEach((ds: any) => {
+      ds.hidden = targetHidden;
+    });
+    this.chartInstance.update();
+  }
   numericCriteria: Criterion[] = [];
 
   selectedCriterion: string | null = null;

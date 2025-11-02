@@ -17,6 +17,7 @@
         <button *ngFor="let c of numericCriteria" (click)="chooseCriterion(c.name)">{{c.name}}</button>
       </div>
       <!-- Chart canvas shown after selection -->
+      <button *ngIf="selectedCriterion" (click)="toggleLables()">Toggle Selection</button>
       <canvas *ngIf="selectedCriterion" #chartCanvas width="600" height="400"></canvas>
     </div>
   </div>

@@ -30,7 +30,7 @@
               <!-- Counter type -->
               <ng-container *ngIf="(getCriterion(key)?.type) === 'counter'">
                 <!-- Counter controls: red background when value is zero -->
-                <div class="counter-controls" [ngClass]="{'zero-bg': cell.student.counters[key] === 0, 'positive-bg': cell.student.counters[key] !== 0}">
+                <div class="counter-controls" [ngClass]="getCounterClasses(cell.student.counters[key])">
                   <button (click)="$event.stopPropagation(); decrementKey(cell, key)">-</button>
                   <span class="count-value">{{cell.student.counters[key]}}</span>
                   <button (click)="$event.stopPropagation(); incrementKey(cell, key)">+</button>
