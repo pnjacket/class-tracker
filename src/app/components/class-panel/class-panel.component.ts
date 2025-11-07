@@ -155,6 +155,27 @@ toggleLables(): void {
       this.store.setActiveClassById('');
     }
   }
+  /** Helper to find index of the currently selected class */
+  private get _classIndex(): number {
+    return this.classes.findIndex(c => c.classId === this.activeClassId);
+  }
+
+  hasPrevClass(): boolean { return this._classIndex > 0; }
+  hasNextClass(): boolean { return this._classIndex >= 0 && this._classIndex < this.classes.length - 1; }
+
+  prevClass(): void {
+    if (this.hasPrevClass()) {
+      const prev = this.classes[this._classIndex - 1];
+      this.store.setActiveClassById(prev.classId);
+    }
+  }
+
+  nextClass(): void {
+    if (this.hasNextClass()) {
+      const nxt = this.classes[this._classIndex + 1];
+      this.store.setActiveClassById(nxt.classId);
+    }
+  }
   get activeClass() { return this.store.activeClass; }
   get activeView() { return this.store.activeView; }
 

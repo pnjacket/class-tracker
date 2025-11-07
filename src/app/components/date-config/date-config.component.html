@@ -1,9 +1,12 @@
 <div *ngIf="activeClass" class="view-panel">
   <!-- Disabled when edit mode (drag‑and‑drop) is off -->
+  <!-- Navigation buttons for date selection -->
+  <button class="nav-btn" (click)="prevDate()" [disabled]="!hasPrevDate()" title="Previous Date"><</button>
   <select [ngModel]="activeView?.date"
           (ngModelChange)="onViewChange($event)">
     <option *ngFor="let v of sortedViews" [value]="v.date">{{v.date}}</option>
   </select>
+  <button class="nav-btn" (click)="nextDate()" [disabled]="!hasNextDate()" title="Next Date">></button>
   <button (click)="addView()" [disabled]="!editMode.isEnabled">Add Date</button>
   <button (click)="removeView(activeView?.date)"
           [disabled]="!activeView || !editMode.isEnabled">Remove Date</button>

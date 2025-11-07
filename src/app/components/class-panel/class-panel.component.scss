@@ -30,6 +30,11 @@
 button {
   min-width: 120px;
 }
+/* Smaller navigation buttons */
+.nav-btn {
+  min-width: 30px; /* roughly 25% of regular button width */
+  padding: 0 4px;
+}
 /* Chart dialog */
 .chart-dialog {
   position: fixed;

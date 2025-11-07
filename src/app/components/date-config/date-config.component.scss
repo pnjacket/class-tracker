@@ -8,3 +8,8 @@
 button {
   min-width: 120px;
 }
+/* Smaller navigation buttons */
+.nav-btn {
+  min-width: 30px; /* ~25% of normal width */
+  padding: 0 4px;
+}
