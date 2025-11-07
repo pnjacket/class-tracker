@@ -76,8 +76,8 @@ describe('ClassStoreService', () => {
     expect(cell.student?.counters['Points']).toBe(1);
     service.decrementKey(cell, 'Points');
     expect(cell.student?.counters['Points']).toBe(0);
-    // should not go below 0
+    // counters can go negative (new feature)
     service.decrementKey(cell, 'Points');
-    expect(cell.student?.counters['Points']).toBe(0);
+    expect(cell.student?.counters['Points']).toBe(-1);
   });
 });

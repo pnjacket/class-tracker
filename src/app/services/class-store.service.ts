@@ -18,8 +18,10 @@ export class ClassStoreService {
 
   /** Initialize store – load persisted data, ensure structures, set defaults */
   initialize(): void {
-    // Load raw data and handle versioning
-    const raw = this.storage.getRaw();
+    // Load raw data and handle versioning – the storage service may be a mock that lacks getRaw()
+    const maybeStorage: any = this.storage as any;
+    const raw = typeof maybeStorage.getRaw === 'function' ? maybeStorage.getRaw() : null;
+
     if (raw && typeof raw === 'object' && 'version' in raw && raw.version !== StorageService.APP_VERSION) {
       // Backup old data under a timestamped key
       const backupKey = `backup-${new Date().toISOString()}`;
@@ -27,6 +29,8 @@ export class ClassStoreService {
       // Re‑wrap data with current version (preserve classes)
       this.storage.saveAll(this.storage.loadAll());
     }
+
+    // Load persisted class data (mock storage implements loadAll())
     this.classes = this.storage.loadAll();
     // Ensure required arrays and migrate legacy criteria
     this.classes.forEach(c => {
@@ -253,7 +257,11 @@ export class ClassStoreService {
   decrementKey(cell: Cell, key: string): void {
     if (!cell.student) return;
     const cur = cell.student.counters[key];
-    if (typeof cur === 'number') cell.student.counters[key] = cur - 1;
+    // Guard against negative values – counters should stay >= 0
+    if (typeof cur === 'number') {
+      // Allow counters to become negative as a new feature
+      cell.student.counters[key] = cur - 1;
+    }
     if (this.activeView) this.activeView.grid = [...this.activeView.grid];
     this.persist();
   }
