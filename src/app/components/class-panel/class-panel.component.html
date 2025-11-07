@@ -1,7 +1,10 @@
 <div class="class-panel">
+  <!-- Navigation buttons for class selection -->
+  <button class="nav-btn" (click)="prevClass()" [disabled]="!hasPrevClass()" title="Previous Class"><</button>
   <select [ngModel]="activeClassId" (ngModelChange)="store.setActiveClassById($event)">
     <option *ngFor="let c of classes" [value]="c.classId">{{c.title}}</option>
   </select>
+  <button class="nav-btn" (click)="nextClass()" [disabled]="!hasNextClass()" title="Next Class">></button>
 
   <button (click)="openCreateClassDialog()" [disabled]="!activeClass || !editMode.isEnabled">New Class</button>
   <button (click)="renameActiveClass()" [disabled]="!activeClass || !editMode.isEnabled">Rename</button>

@@ -31,6 +31,30 @@ export class DateConfigComponent implements OnInit {
     }
   }
 
+  /** Helper to get index of current active view in sorted list */
+  private get _viewIndex(): number {
+    if (!this.activeView) return -1;
+    const idx = this.sortedViews.findIndex(v => v.date === this.activeView?.date);
+    return idx;
+  }
+
+  hasPrevDate(): boolean { return this._viewIndex > 0; }
+  hasNextDate(): boolean { return this._viewIndex >= 0 && this._viewIndex < this.sortedViews.length - 1; }
+
+  prevDate(): void {
+    if (this.hasPrevDate()) {
+      const prev = this.sortedViews[this._viewIndex - 1];
+      this.store.onViewChange(prev.date);
+    }
+  }
+
+  nextDate(): void {
+    if (this.hasNextDate()) {
+      const nxt = this.sortedViews[this._viewIndex + 1];
+      this.store.onViewChange(nxt.date);
+    }
+  }
+
 
 
   addView(): void {
