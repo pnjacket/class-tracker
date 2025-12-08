@@ -102,8 +102,15 @@ export class ClassStoreService {
       return;
     }
 
-    // Build the grid for the new view – copy existing layout but we will clear notes
-    const sourceGrid = this.activeView ? this.cloneGrid(this.activeView.grid, false) : this.buildEmptyGrid(this.activeClass.rows, this.activeClass.cols);
+    // Determine the most recent existing view (by ISO date) to use as base for cloning
+    // Use explicit null check on accumulator since we start with `null`.
+    const baseView = this.activeClass.views.reduce((a, b) => {
+      if (!a) return b;
+      return a.date > b.date ? a : b;
+    }, null as ClassView | null);
+
+    // Build the grid for the new view – clone from most recent view if present; otherwise start empty.
+    const sourceGrid = baseView ? this.cloneGrid(baseView.grid, false) : this.buildEmptyGrid(this.activeClass.rows, this.activeClass.cols);
 
     // Clear any existing notes in the newly created grid (so a fresh view starts with empty notes)
     for (let r = 0; r < sourceGrid.length; r++) {
@@ -112,9 +119,9 @@ export class ClassStoreService {
         if (cell.student) {
           // reset notes
           if (cell.student.notes) cell.student.notes = '';
-          // reset counters according to criteria (default to 0 for numeric counters)
-          if (this.activeView?.criteria) {
-            const critList = this.activeView.criteria;
+          // reset counters based on criteria of the base view (default to 0 for numeric counters)
+          if (baseView?.criteria) {
+            const critList = baseView.criteria;
             Object.keys(cell.student.counters).forEach(key => {
               const critDef = critList.find(c => c.name === key);
               if (critDef && critDef.type === 'counter') {
@@ -128,8 +135,8 @@ export class ClassStoreService {
       }
     }
 
-    // Copy criteria from the active view (if any). Use a deep copy to avoid reference sharing.
-    const copiedCriteria: Criterion[] = this.activeView?.criteria ? JSON.parse(JSON.stringify(this.activeView.criteria)) : [];
+    // Copy criteria from the base view (if any). Deep copy to avoid reference sharing.
+    const copiedCriteria: Criterion[] = baseView?.criteria ? JSON.parse(JSON.stringify(baseView.criteria)) : [];
 
     const newView: ClassView = { date, grid: sourceGrid, criteria: copiedCriteria };
     this.activeClass.views.push(newView);
