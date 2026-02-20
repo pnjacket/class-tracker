@@ -44,9 +44,11 @@ Welcome! This guide walks you through the **Class Tracker** application, describ
 
 ---
 
-## 6️⃣ Adding a New Date View
+## 6️⃣ Managing Date Views
 - When you create a new class, a view for today is added automatically.
-- To add additional dates later, use the class‑panel’s existing UI (the exact steps may vary by version). The new view will inherit the criteria from the current class and start all numeric counters at **0**.
+- To add a new date view, click the **Add Date** button (requires edit mode to be enabled) and enter the date in `YYYY-MM-DD` format when prompted. The new view will inherit the seating arrangement and criteria from the most recent view, with all numeric counters reset to **0**.
+- To remove the currently displayed date view, click **Remove Date** (requires edit mode). This cannot be undone.
+- Use the **<** and **>** navigation buttons or the date dropdown to switch between existing views.
 
 ---
 

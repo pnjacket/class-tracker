@@ -39,16 +39,24 @@ This is a **commercial‑licensed** application, but the entire source code is o
 ## Project Structure (relevant files)
 ```
 src/app/
-│   app.ts                     # Main component (standalone), UI logic & state management
-│   app.html                   # Template with class selector, grid, dialogs, and drag‑drop bindings
-│   models.ts                  # Interfaces: Student, Cell, ClassRoom, ClassView
-│   utils.ts                    # Tiny UUID helper used throughout the app
-│   services/storage.service.ts# Load/save all classes to localStorage
-│   counter-dialog/
-│       counter-dialog.component.ts  # Modal for editing counters (increment/decrement)
+│   app.ts / app.html          # Root component (shell); initialises the store on load
+│   models.ts                  # Interfaces: Student, Cell, ClassRoom, ClassView, Criterion
+│   utils.ts                   # UUID helper
+│   components/
+│       class-panel/           # Top toolbar: class selector, criteria editor, export/import, chart
+│       classroom-grid/        # Main seating grid with drag-and-drop and counter display
+│       date-config/           # Date/view selector (add/remove date views)
+│       grid-config/           # Rows × cols configuration inputs
+│   counter-dialog/            # Inline counter increment/decrement modal
+│   criteria-editor/           # Modal for managing criteria (counter column definitions)
+│   services/
+│       class-store.service.ts # Central state hub: all CRUD, counter mutations, export/import
+│       storage.service.ts     # localStorage wrapper (versioned at 0.0.2)
+│       drag-toggle.service.ts # Edit mode toggle (BehaviorSubject + cookie)
+│   shared/cookie.util.ts      # getCookie/setCookie helpers
 ```
 Other notable files:
-- `angular.json` – Angular CLI configuration.
+- `angular.json` – Angular CLI configuration (project name: `classroom-app`).
 - `package.json` – Project metadata and dependencies.
 - `src/main.ts` – Bootstrap entry point.
 
@@ -104,15 +112,14 @@ The repository includes a basic spec file (`app.spec.ts`). Additional tests can 
 ---
 
 ## Data Persistence Details
-The `StorageService` stores a JSON array under the key **`classroom-app-data`** in the browser's `localStorage`. Each entry corresponds to a `ClassRoom` object with its own grid, views (dates), and student information. Deleting a class removes it from this array.
+The `StorageService` stores a versioned JSON object `{ version, classes }` under the key **`classroom-app-data`** in the browser's `localStorage`. Each entry in `classes` corresponds to a `ClassRoom` object with its own grid, views (dates), and student information. Deleting a class removes it from this array. Legacy plain-array format is still supported on load for backward compatibility. On a version mismatch, the old data is automatically backed up under a timestamped key before migration.
 
 ---
 
 ## Extending / Customizing
-- **Add more counters**: extend the `counters` map in `Student`, update the dialog template (`counterKeys`).
+- **Add more counters**: use the **Edit Criteria** button in the UI to add counter or predefined-value criteria, or call `ClassStoreService.updateViewCriteria()` programmatically.
 - **UI improvements**: replace prompt‑based dialogs with Angular Material components for a richer experience.
 - **Backend persistence**: swap out `StorageService` implementation to use an API or server‑side database.
-- **Additional criteria handling**: modify `editCriteria()` logic to enforce validation rules.
 
 ---
 
